@@ -1,0 +1,450 @@
+{
+ "generado": "2026-09-16",
+ "cups": {
+  "S50003": {
+   "descripcion": "ACCIONES INDIVIDUALES DE MEDICINA TRADICIONAL",
+   "subcodigos": {
+    "S50003-1": {
+     "descripcion": "Cuidado inmediato y/o permanente intercultural en territorio",
+     "motivos": {
+      "7": "Sintomas de casos que requieren de cuidado inmediato en territorio"
+     }
+    },
+    "S50003-10": {
+     "descripcion": "Tratamiento propio y/o intercultural de enfermedades respiratorias en territorio.",
+     "motivos": {
+      "71": "Mal de sereno",
+      "72": "Dolor de garganta, carraspera o ronquera",
+      "73": "Resfriado",
+      "75": "Apretamiento o ahogo",
+      "76": "Gripa, catarro o tos"
+     }
+    },
+    "S50003-12": {
+     "descripcion": "Tratamiento propio y/o intercultural de enfermedades asociadas a la psiquis y/o espiritualidad en territorio",
+     "motivos": {
+      "78": "Mal de ojo",
+      "79": "Susto o miedo inexplicable",
+      "80": "Maleficio",
+      "81": "Vision Inexplicable o manifestacion de espantos",
+      "82": "Mal de cariño",
+      "83": "Posesion malefica"
+     }
+    },
+    "S50003-13": {
+     "descripcion": "Tratamiento propio y/o intercultural de otras enfermedades, situaciones o sintomas en territorio",
+     "motivos": {
+      "84": "Autoenvenenamiento",
+      "85": "Abuso sexual",
+      "86": "Violencia intrafamiliar"
+     }
+    },
+    "S50003-2": {
+     "descripcion": "Tratamiento propio y/o intercultural de huesos y articulaciones en territorio",
+     "motivos": {
+      "8": "Fractura o fisura de hueso",
+      "9": "Torcedura o esguince de articulación",
+      "10": "Dislocacion de hueso",
+      "11": "Dolor de hueso y/o articulacion"
+     }
+    },
+    "S50003-20": {
+     "descripcion": "Tratamiento propio y/o intercultural de enfermedades bucales en territorio",
+     "motivos": {
+      "21": "Dolor de muela",
+      "22": "Grano o fuego en la boca",
+      "23": "Lesion en la boca",
+      "28": "Mal aliento"
+     }
+    },
+    "S50003-27": {
+     "descripcion": "Deteccion y tratamiento propio y/o intercultural de los riesgos de gestación en territorio",
+     "motivos": {
+      "119": "Mal acomodacion del feto",
+      "120": "Sintoma de aborto",
+      "121": "Mal nutricion de la gestante",
+      "122": "Maltrato o abandono de la gestante",
+      "123": "Afectación mental y emocional de la gestante"
+     }
+    },
+    "S50003-28": {
+     "descripcion": "Tratamiento propio y/o intercultural de los riesgos de las gestantes en casa",
+     "motivos": {
+      "101": "Dolores, sangrado, fluido o contracciones antes de tiempo",
+      "102": "Parto demorado"
+     }
+    },
+    "S50003-29": {
+     "descripcion": "Entrega de kit intercultural para la atención del parto natural en casa",
+     "motivos": {
+      "99": "Garantizar parto limpio en casa"
+     }
+    },
+    "S50003-3": {
+     "descripcion": "Tratamiento propio y/o intercultural de dolores corporales en territorio",
+     "motivos": {
+      "12": "Torticulis o dolor de cuello",
+      "13": "Hinchazon o dolor muscular",
+      "14": "Calambre u hormigueo muscular",
+      "15": "Endurecimiento y/o espasmo muscular",
+      "16": "Viento"
+     }
+    },
+    "S50003-31": {
+     "descripcion": "Atención propia y/o intercultural de las alteraciones o enfermedades específicas de la madre o del bebe en casa",
+     "motivos": {
+      "105": "Bajo peso del recien nacido",
+      "106": "Alteracciones despues del parto: Retencion de placenta, sintoma de eclampsia, no produccion de leche, fiebre, dolor de cabeza, entre otros",
+      "112": "Alteracciones del recien nacido: llanto excesivo, incapacidad para alimentarese, fiebre, inflamación del ombligo"
+     }
+    },
+    "S50003-32": {
+     "descripcion": "Atención propia y/o intercultural de las alteraciones o enfermedades específicas del niño(a) o del (la) joven en territorio",
+     "motivos": {
+      "114": "Riesgo o manifestacion de desnutricion en el (la) niño(a) o joven",
+      "115": "Situacion de maltrato al (la) niño(a) o joven",
+      "116": "Alteraciones en el crecimiento y desarrollo del (la) niño(a) o joven"
+     }
+    },
+    "S50003-34": {
+     "descripcion": "Atención y tratamiento propio y/o intercultural en territorio de las alteraciones del (la) adolescente en su desarrollo",
+     "motivos": {
+      "127": "Anomalia en la menstruación",
+      "128": "Depresion adolecente",
+      "129": "Transtorno de sueño y/o alimentario"
+     }
+    },
+    "S50003-35": {
+     "descripcion": "Atencion y tratamiento propio y/o intercultural de las afectaciones mentales y emocionales del (la) adolescente en territorio",
+     "motivos": {
+      "124": "Alteracción de la salud mental y emocional del (la) adolescente"
+     }
+    },
+    "S50003-36": {
+     "descripcion": "Atención y tratamiento propio y/o intercultural en territorio de las alteraciones generales del (la) adolescente",
+     "motivos": {
+      "133": "Alteracción de la salud mental, emocional y comportamental del (la) adolescente",
+      "135": "Consumo de alcohol o SPA en adolescente"
+     }
+    },
+    "S50003-4": {
+     "descripcion": "Tratamiento propio y/o intercultural de cortaduras o ataques de animales en territorio",
+     "motivos": {
+      "17": "Cortuduras o lesión en la piel",
+      "18": "Mordedura o ataque de animales"
+     }
+    },
+    "S50003-40": {
+     "descripcion": "Atención y tratamiento propio y/o intercultural en territorio de las alteraciones específicas de la convivencia en pareja",
+     "motivos": {
+      "136": "Violencia intrafamiliar",
+      "137": "Abandono de hogar",
+      "138": "Infidelidad"
+     }
+    },
+    "S50003-41": {
+     "descripcion": "Atención y tratamiento propio y/o intercultural en territorio de las enfermedades de la mujer o del hombre en pareja",
+     "motivos": {
+      "140": "Enfermedades o anomalía en las partes intimas",
+      "145": "Enfermedades o alteracciones en seno",
+      "149": "Alcoholismo o consumo de SPA"
+     }
+    },
+    "S50003-42": {
+     "descripcion": "Atención y tratamiento propio y/o intercultura en territorio de las alteraciones o enfermedades especificas del adulto mayor",
+     "motivos": {
+      "151": "Dolor o endurecimiento de las articulaciones",
+      "152": "Problemas de circulacion",
+      "155": "Agotamiento general del cuerpo",
+      "156": "Alteración nutricional",
+      "157": "Trastorno de sueño o perdidad de memoria",
+      "158": "Resfriado y gripa cronica"
+     }
+    },
+    "S50003-5": {
+     "descripcion": "Tratamiento propio y/o intercultural de enfermedades gastrointestinales en territorio",
+     "motivos": {
+      "29": "Atragantamiento",
+      "30": "Intoxicacion o envenenamiento",
+      "32": "Diarrea, disentería o mucosidad",
+      "33": "Dolor o ardor de estomago",
+      "34": "Acidez o agriera",
+      "37": "Vomito",
+      "39": "Estreñimiento u obstrucción intestinal",
+      "40": "Flatulencia",
+      "41": "Hemorroides"
+     }
+    },
+    "S50003-6": {
+     "descripcion": "Atención y cuidado propio y/o intercultural del parto, puerperio  y del recién nacido en casa",
+     "motivos": {
+      "104": "Evento de parto"
+     }
+    },
+    "S50003-7": {
+     "descripcion": "Atencion a mordedura de serpientes o picadura de animales venenosos y/o ponzoñosos en territorio",
+     "motivos": {
+      "1": "Moderdura de serpiente",
+      "2": "Picadura de alacran",
+      "3": "Picadura de araña",
+      "4": "Lesión de tuqueca",
+      "5": "Picadura de ciempies"
+     }
+    },
+    "S50003-8": {
+     "descripcion": "Tratamiento propio y/o intercultural de enfermedades de la piel en territorio",
+     "motivos": {
+      "42": "Quemadura",
+      "43": "Caspa",
+      "45": "Grano o absceso de piel",
+      "47": "Alergia",
+      "48": "Brotes, rasquiñas y ronchas",
+      "54": "Sarna",
+      "55": "Hongo de pie o uña",
+      "57": "Culebrilla"
+     }
+    },
+    "S50003-9": {
+     "descripcion": "Tratamiento propio y/o intercultural de órganos en territorio",
+     "motivos": {
+      "58": "Dolor, supuracion, zumbido o taponamiento de oido",
+      "62": "Irritación, orzuelo, cuerpo extraño en ojo",
+      "64": "Mal de orina",
+      "67": "Sangrado de nariz"
+     }
+    }
+   }
+  },
+  "S50004": {
+   "descripcion": "ACCIONES DE ADECUACION SOCIOCULTURAL",
+   "subcodigos": {
+    "S50004-21": {
+     "descripcion": "Busqueda de pacientes inactivos de programas prioritarios en territorio",
+     "motivos": {
+      "163": "Adherir los pacientes inactivos a los programas prioritarios"
+     }
+    },
+    "S50004-3": {
+     "descripcion": "Apoyo a trabajos tradicionales o comunitarios para facilitar el desarrollo de los servicios occidentales en territorio",
+     "motivos": {
+      "164": "Apoyar los trabajos tradicionales y/o comunitarios conexos a los servicios occidentales"
+     }
+    },
+    "S50004-4": {
+     "descripcion": "Visitas domiciliarias a los pacientes Indígenas con tratamiento occidental en territorio",
+     "motivos": {
+      "165": "Supervisar a los pacientes con tratamiento occidental en territorio",
+      "175": "Suministrar agua potable como componente de salud a las familias wayuu"
+     }
+    }
+   }
+  },
+  "S50005": {
+   "descripcion": "ACCIONES PREVENTIVAS",
+   "subcodigos": {
+    "S50005-10": {
+     "descripcion": "Busqueda e identificación de gestantes en territorio",
+     "motivos": {
+      "199": "Enrutar la atención y cuidado de la gestante oportunamente"
+     }
+    },
+    "S50005-12": {
+     "descripcion": "Diálogo con parteras para potenciar la atención materno-perinatal intercultural en territorio",
+     "motivos": {
+      "198": "Atender adecuadamente los eventos materno-perinatal en territorio"
+     }
+    },
+    "S50005-15": {
+     "descripcion": "Cuidado y seguimiento propio y/o intercultural a la gestante en territorio: cuidado del embarazo; educación tradicional prenatal",
+     "motivos": {
+      "197": "Cuidar la salud prenatal en territorio"
+     }
+    },
+    "S50005-16": {
+     "descripcion": "Cuidado preventivo-domiciliario y seguimiento propio y/o intercultural a la materna y recién nacido en territorio: Alimentación adecuada, prevención de enfermedades y protección",
+     "motivos": {
+      "200": "Cuidar la salud de la materna y recien nacido en territorio"
+     }
+    },
+    "S50005-22": {
+     "descripcion": "Cuidado físico de la madre y del recién nacido antes del bautizo tradicional en territorio",
+     "motivos": {
+      "207": "Brindar cuidado especifico a la madre y recien nacido antes del bautizo tradicional en territorio"
+     }
+    },
+    "S50005-23": {
+     "descripcion": "Cuidado del bebe antes de recibir alimentos sólidos (0 – 2 años) en territorio: alimentación adecuada, prevención de desnutrición, IRA, EDA y demás",
+     "motivos": {
+      "208": "Brindar cuidado y protección especificos al bebe de 0 - 2 años en territorio"
+     }
+    },
+    "S50005-25": {
+     "descripcion": "Fomento de adecuada alimentación del niño(a) y adolescente segun etapa de vida en territorio: prevenir alteraciones nutricionales y enfermedades asociadas",
+     "motivos": {
+      "210": "Fomentar adecuada alimentación para el niño(a) y adolescente en territorio"
+     }
+    },
+    "S50005-28": {
+     "descripcion": "Control y prevención propio y/o intercultural de animales que causan daños en territorio, como: serpientes, arañas, piojos, pulgas, garrapatas, ratas, cucarachas, avispas, pitos, zancudos, entre otros",
+     "motivos": {
+      "178": "Prevenir afectaciones de origen animal en territorio"
+     }
+    },
+    "S50005-3": {
+     "descripcion": "Educación propia y/o intercultural  en territorio sobre alimentación propia según ciclo de vida",
+     "motivos": {
+      "187": "Promover adecuada alimentación en territorio"
+     }
+    },
+    "S50005-32": {
+     "descripcion": "Diálogo con los padres y guías espirituales para brindar adecuado manejo y orientación al desarrollo de los(as) adolescentes en territorio",
+     "motivos": {
+      "214": "Brindar adecuado manejo al desarrollo del(la) adolescente en territorio"
+     }
+    },
+    "S50005-34": {
+     "descripcion": "Educacion preventiva sobre signos y sintomas de enfermedades del (la) adolescente en territorio",
+     "motivos": {
+      "216": "Prevenir enfermedades especificas del(la) adolescente en territorio"
+     }
+    },
+    "S50005-35": {
+     "descripcion": "Educación preventiva propia y/o intercultural en territorio de las enfermedades especifica de la vida en pareja",
+     "motivos": {
+      "218": "Prevenir enfermedades especificas de la vida en pareja en territorio"
+     }
+    },
+    "S50005-35-3": {
+     "descripcion": "Educación preventiva propia y/o intercultural en territorio sobre enfermedades especificas de la mujer en su etapa reproductiva",
+     "motivos": {
+      "224": "Prevenir enfermedades especificas de la mujer en su etapa reproductiva"
+     }
+    },
+    "S50005-35-7": {
+     "descripcion": "Capacitación propia y/o intercultural en territorio sobre el cuidado integral del adulto mayor",
+     "motivos": {
+      "221": "Cuidar la salud integral del adulto mayor en territorio"
+     }
+    },
+    "S50005-41": {
+     "descripcion": "Visita domiciliaria en territorio para capacitacion intercultural preventiva y fomento del buen vivir: normas de comportamiento, cuidados e higiene personal y familiar en el hogar",
+     "motivos": {
+      "177": "Fortalecer autocuidados y prácticas saludables en territorio"
+     }
+    },
+    "S50005-5": {
+     "descripcion": "Fomento del uso de la medicina propia y sus prácticas en casa",
+     "motivos": {
+      "189": "Fortalcer la medicina propia en territorio"
+     }
+    },
+    "S50005-5-9": {
+     "descripcion": "Orientación y acompañamiento en territorio al (la) adolescente hasta alcanzar su etapa de vida en pareja",
+     "motivos": {
+      "217": "Brindar orientación y acompañamiento específicos al(la) adolescente en territorio"
+     }
+    },
+    "S50005-6": {
+     "descripcion": "Educación propia y/o intercultural en territorio de las prácticas preventivas en salud bucal",
+     "motivos": {
+      "190": "Cuidar la salud bucal en territorio"
+     }
+    },
+    "S50005-7-1": {
+     "descripcion": "Capacitación y concientización preventiva del abuso y/o violación sexual en territorio",
+     "motivos": {
+      "185": "Prevenir el abuso y/o violación sexual en territorio"
+     }
+    },
+    "S50005-7-3": {
+     "descripcion": "Capacitación propia e intercultural preventiva en territorio sobre el consumo de SPA",
+     "motivos": {
+      "183": "Prevenir el consumo de SPA en territorio"
+     }
+    },
+    "S50005-7-4": {
+     "descripcion": "Fomento del buen vivir y armonía familiar en territorio: dialogo familiar y cumplimiento de rol familiar",
+     "motivos": {
+      "182": "Fortalecer los vinculos y el orden familiar en territorio"
+     }
+    },
+    "S50005-7-5": {
+     "descripcion": "Capacitación individual y familiar preventiva de conductas suicidas en territorio",
+     "motivos": {
+      "181": "Prevenir suicidios en territorio"
+     }
+    },
+    "S50005-8": {
+     "descripcion": "Fomento del cuidado propio y/o intercultural del medio ambiente y los recursos natulares en territorio: manejo de basura, productos quimicos, talas y quemas",
+     "motivos": {
+      "193": "Cuidar y proteger los recursos naturales"
+     }
+    }
+   }
+  },
+  "S50008": {
+   "descripcion": "TRANSPORTE INTERMUNICIPAL TERRESTRE",
+   "subcodigos": {
+    "S50008-1": {
+     "descripcion": "Transporte de paciente y/o acompañante con origen y/o destino en zona rural",
+     "motivos": {
+      "1": "Traslado gestante",
+      "2": "Traslado proceso de parto",
+      "3": "Traslado madre y recién nacido",
+      "4": "Traslado menor desnutrido / riesgo DNT",
+      "5": "Traslado ETV/ tuberculosis",
+      "8": "Traslado de urgencia desde comunidad",
+      "9": "Traslado a cita especializada",
+      "10": "Traslado en jornada de salud",
+      "11": "Traslado paciente alto costo",
+      "12": "Traslado de fallecido rural",
+      "13": "Traslado retorno de paciente a comunidad",
+      "14": "Traslado a cita y/o procedimientos médicos",
+      "16": "Traslado de paciente ordenado por el sabedor"
+     }
+    }
+   }
+  }
+ },
+ "sedes": {
+  "RIOHACHA": {
+   "habilitacion": "440010108302",
+   "contrato": "DIF-44001-2026-21",
+   "municipio": "44001"
+  },
+  "DIBULLA": {
+   "habilitacion": "440010108301",
+   "contrato": "DIF-44090-2026-29",
+   "municipio": "44090"
+  }
+ },
+ "tipos_documento": [
+  "CC",
+  "TI",
+  "RC",
+  "CE",
+  "MS",
+  "AS",
+  "PA",
+  "CN",
+  "PE",
+  "SC"
+ ],
+ "transporte": {
+  "medios": {
+   "1": "Vehículo",
+   "2": "Moto",
+   "3": "Bicicleta",
+   "4": "Ciclo taxi",
+   "5": "Animal",
+   "6": "Hamaca"
+  },
+  "tipos_beneficiado": {
+   "1": "Paciente o afiliado",
+   "2": "Acompañante"
+  },
+  "medio_con_placa": "1",
+  "placa_no_aplica": "NA",
+  "cups": "S50008"
+ }
+}

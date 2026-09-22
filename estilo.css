@@ -1,0 +1,825 @@
+/* Pensado para una TABLET y para dedos, no para un raton: los campos son grandes,
+   nada depende de pasar el mouse por encima y no hay nada que quede fuera de pantalla.
+   Es la misma regla de §4.9 del programa de escritorio: lo que no cabe se rueda, nunca
+   se recorta en silencio. */
+/* 🎨 EA (2026-09-11) · NEGRO, GRISES OSCUROS Y MORADO — decision suya, mirando la app de
+   Enrique: *«que los colores no sean azul, sino mas negro con tonos grises oscuros con
+   morados en caso tal»*. Antes todo esto era azul pizarra (#0f172a) con celeste (#38bdf8).
+
+   ⚠️ Los tres colores de ESTADO (verde, rojo, naranja) se quedan: no son decoracion, son lo
+   que distingue «se mando» de «falta» de «ojo con este». Cambiarlos por morado dejaria la
+   pantalla bonita y muda. */
+/* 🔴🔴 GA-2 (2026-09-21) · EL REDISEÑO CON EL ESTILO DE GESTIONDINEROTRABAJO — maqueta
+   `docs/maqueta/app_captura_rediseno.html`, aprobada por él (*«haz el rediseño»*).
+   ⚠️ **SUPERA la decisión de color de EA de arriba** («negro con grises y morado, no azul»):
+   la maqueta aprobada es AZUL MARINO, como GestionDinero. Se le dijo al entregarla. Si él
+   vuelve al negro, basta con cambiar estos valores: los NOMBRES son los de siempre, así que
+   el resto de la hoja no se toca. El morado sigue siendo el acento. */
+:root {
+  --fondo: #0a1120;          /* azul marino (GestionDinero, D-63) */
+  --panel: #111c33;
+  --panel2: #1a2744;
+  --campo: #0b1427;
+  --borde: #22304d;
+  --borde-fuerte: #2e3f63;
+  --texto: #e8eef7;
+  --suave: #8ea2c0;
+  --acento: #a78bfa;         /* el morado, igual que antes */
+  --acento-fuerte: #7c3aed;
+  --acento-hondo: #2a2150;
+  --turquesa: #14b8a6;
+  --rosa: #ec4899;
+  --verde: #4ade80;
+  --rojo: #f05252;
+  --naranja: #fbbf24;
+  --alto: 52px;
+  --radio: 16px;
+  --radio-chico: 10px;
+  --sombra: 0 10px 28px rgba(0, 0, 0, .32);
+  --letra-titulo: "Poppins", "Segoe UI", sans-serif;
+  --letra: "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+}
+/* Las letras van DENTRO de la app (`fuentes/`, también en la lista del `sw.js`): con
+   Google Fonts no abriría sin señal. Solo el subconjunto latino. */
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap; src: url("fuentes/inter-latin-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; font-display: swap; src: url("fuentes/inter-latin-500.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("fuentes/inter-latin-600.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 600; font-display: swap; src: url("fuentes/poppins-latin-600.woff2") format("woff2"); }
+@font-face { font-family: "Poppins"; font-weight: 700; font-display: swap; src: url("fuentes/poppins-latin-700.woff2") format("woff2"); }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+/* 🔤 EE (2026-09-12) · LA TIPOGRAFIA. Su encargo: *«buen tipo de letra, no que parezca
+   algo hecho a las prisas»*, enseñando la app de Enrique.
+
+   ⚠️ **Roboto va PRIMERA y no se descarga**: es la tipografia del sistema en Android, o
+   sea que en su telefono y en la tablet de Anyi ya esta. Pedirla por red —Google Fonts—
+   rompería lo unico que no se puede romper: que la app abra SIN SEÑAL.
+
+   `font-feature-settings` apaga las ligaduras raras y pone las cifras tabulares: en una
+   app donde casi todo son numeros de documento y codigos, que las cifras midan lo mismo
+   se nota al leer una lista. */
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: Roboto, "Segoe UI Variable", "Segoe UI", system-ui, -apple-system,
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  letter-spacing: .01em;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  padding-bottom: 40px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 🔴 EH (2026-09-12) · LA BARRA, DE TRES PIEZAS Y CON EL TÍTULO CENTRADO.
+   Era un `flex` con `space-between` y `flex-wrap`, o sea: logo + título + estado + el
+   desplegable de la sede, y en un teléfono la sede **bajaba de línea** y la barra medía
+   dos renglones. Ahora es una rejilla de tres columnas con los extremos del MISMO ancho,
+   que es lo único que centra el título de verdad y no «entre lo que sobra». */
+.barra {
+  position: sticky; top: 0; z-index: 5;
+  display: grid;
+  grid-template-columns: 46px 1fr 46px;
+  align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: #09090c;
+  border-bottom: 1px solid var(--borde);
+}
+.barra-centro { min-width: 0; text-align: center; }
+.barra-centro strong {
+  display: block; font-size: 17px; letter-spacing: -.01em;
+  /* Un título largo se recorta con puntos suspensivos en vez de romper la rejilla: la
+     barra tiene que medir siempre lo mismo. */
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* El renglón de debajo lleva la SEDE puesta y el estado de la base. La sede se escoge
+   abajo, pero se sigue leyendo aquí: ver el comentario del `index.html`. */
+.barra-centro small {
+  display: block; color: var(--suave); font-size: 12.5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.barra-centro small b { color: var(--acento); font-weight: 600; }
+.logo {
+  /* DY · el logo de Makushama, el mismo del icono de la app (antes un «MT» en un cuadro). */
+  width: 42px; height: 42px; object-fit: contain; display: block;
+}
+.barra-atras {
+  width: 46px; min-width: 46px; height: 46px; min-height: 46px; padding: 0;
+  display: grid; place-items: center;
+  font-size: 30px; line-height: 1;
+  background: transparent; border: 0; color: var(--texto);
+}
+.barra-atras:active { background: var(--panel2); border-radius: 12px; }
+.barra-hueco { display: block; }
+/* El `<select>` de la sede es el control de verdad y no se ve: lo que se toca son los dos
+   botones. Ni `display:none` ni `hidden`, por lo mismo que en los desplegables de DX —
+   tiene que seguir contando como control del formulario y poder recibir eventos. */
+.sede-real {
+  position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0;
+  opacity: 0; pointer-events: none; border: 0;
+}
+
+/* 🔴 EH · LA SEDE, EN DOS BOTONES.
+   Solo tiene dos respuestas y se mira todo el día: un desplegable costaba tres toques
+   (abrir la hoja, buscar, escoger) y **no decía cuál estaba puesta** sin abrirlo. */
+.sedes {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 14px 14px 0;
+}
+.sedes-titulo {
+  font-size: 12.5px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--suave);
+}
+.sedes-botones {
+  display: flex; gap: 8px; flex: 1 1 240px; min-width: 0;
+  padding: 5px;
+  background: var(--panel); border: 1px solid var(--borde); border-radius: 16px;
+}
+.sede-boton {
+  flex: 1 1 0; min-width: 0;
+  min-height: 50px; padding: 8px 10px;
+  border: 1px solid transparent; border-radius: 12px;
+  background: transparent; color: var(--suave);
+  font-size: 15px; font-weight: 600; letter-spacing: .02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* La puesta se ve de un vistazo y desde lejos: es el dato que no se puede equivocar. */
+.sede-boton[aria-pressed="true"] {
+  background: var(--acento-hondo); border-color: var(--acento); color: #ede7ff;
+}
+.sede-boton:active { transform: scale(.98); }
+
+main { max-width: 760px; margin: 0 auto; padding: 14px; display: grid; gap: 14px; }
+
+.tarjeta {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 18px;
+  /* ⚠️ El relleno sube a 22 solo cuando hay sitio. Con 22 fijos, en un teléfono de 412 px
+     «Tipo» y «Fecha» dejaban de caber en la misma fila y se apilaban — o sea, MÁS hueco
+     desaprovechado, que es justo lo contrario de lo que él pidió. Medido. */
+  padding: 18px;
+}
+.tarjeta h2 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.01em;   /* los títulos grandes piden ir más juntos, no más sueltos */
+}
+.cabecera { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cabecera h2 { margin: 0 0 4px; }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+.cuenta {
+  display: inline-block; min-width: 28px; padding: 1px 9px; margin-left: 4px;
+  border-radius: 999px; background: var(--panel2); color: var(--acento);
+  font-size: 14px; text-align: center;
+}
+
+/* 🔴🔴 EH (2026-09-12) · LA ETIQUETA VA DENTRO DEL CAMPO.
+   ==========================================================================
+   Es lo que más separaba nuestra pantalla de la de Enrique, que él puso de referencia: allí
+   cada campo es **una sola caja** con su nombre dentro; aquí eran dos cosas sueltas —una
+   línea gris encima y un cuadro debajo—, así que doce campos parecían veinticuatro.
+
+   ⚠️ **Y NO se toca el HTML**: la etiqueta sigue siendo el `<label for=…>` de siempre, con
+   su texto y su vínculo con el campo. Lo único que cambia es dónde se dibuja. Así ni las
+   pruebas ni el lector de pantalla notan nada, y si algún navegador viejo no entendiera
+   estas reglas, lo que sale es la pantalla de antes — no una rota.
+
+   La etiqueta **flota**: cuando el campo está vacío y sin foco ocupa el sitio del dato, y
+   al escribir sube a su esquina. En los que no pueden estar «vacíos» a ojos del navegador
+   —la fecha y los desplegables— se queda arriba siempre, que es como acaba viéndose
+   cualquier campo ya lleno. */
+.campo {
+  position: relative;
+  margin-bottom: 14px;
+}
+.campo label {
+  position: absolute; top: 9px; left: 17px; z-index: 1;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--suave);
+  pointer-events: none;           /* el toque tiene que llegar al campo de debajo */
+  transition: transform .13s ease, font-size .13s ease, color .13s ease;
+  transform-origin: left top;
+  /* Una etiqueta larga («Dirección del script (termina en /exec)») se recorta con puntos
+     suspensivos en vez de salirse de la caja: es §4.9 otra vez —lo que no cabe se
+     reacomoda, nunca se derrama por encima de lo de al lado—. El texto completo sigue
+     estando en el `<label>` para el lector de pantalla. */
+  max-width: calc(78% - 20px);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* Sitio para la etiqueta dentro de la caja. La altura sube a ~70 px, que es la de la app
+   que él enseñó: se tocan mejor y el formulario respira. */
+.campo input, .campo select, .campo .desplegable-boton {
+  padding-top: 26px; padding-bottom: 10px;
+  min-height: 70px;
+}
+.campo input:focus { outline-offset: 0; }
+/* Campo de texto VACÍO y sin foco: la etiqueta baja y hace de placeholder. */
+.campo:has(input:placeholder-shown:not(:focus)) label {
+  transform: translateY(11px) scale(1.28);
+  letter-spacing: .01em;
+  text-transform: none;
+}
+.campo input:placeholder-shown:not(:focus) {
+  padding-top: 12px; padding-bottom: 12px;
+}
+/* ⚠️ Y entonces el `placeholder` SOBRA: con la etiqueta abajo, los dos decían lo mismo
+   uno encima del otro. Reaparece al enfocar, que es cuando sí ayuda («sin puntos»). */
+.campo input:placeholder-shown:not(:focus)::placeholder { color: transparent; }
+.campo:focus-within label { color: var(--acento); }
+/* FJ-4 · La fecha en día/mes/año: el texto del sistema (que sale en el orden del idioma del
+   teléfono) se vuelve invisible y encima va el nuestro. El icono del calendario se queda. */
+.campo input.fecha-nativa { color: transparent; }
+.campo input.fecha-nativa::-webkit-datetime-edit { color: transparent; }
+.campo .fecha-visible {
+  position: absolute; left: 17px; bottom: 11px;
+  pointer-events: none;           /* el toque tiene que llegar al calendario de debajo */
+  color: var(--texto);
+}
+.campo .fecha-visible.vacia { color: #6f6f80; }
+.fila { display: flex; gap: 10px; flex-wrap: wrap; }
+/* ⚠️ `min-width: 0` NO sobra: una columna de un flex no encoge por debajo de lo que
+   mide su contenido, y desde que el desplegable es nuestro —con el nombre del servicio
+   escrito en una línea— eso empujaba la tarjeta a 740 px dentro de una pantalla de 412.
+   Con el `<select>` del sistema no pasaba porque el navegador sí lo deja encoger. */
+.fila .campo { flex: 1 1 150px; min-width: 0; }
+.fila .estrecho { flex: 0 1 118px; }
+
+input, select, button {
+  font: inherit;
+  width: 100%;
+  min-height: var(--alto);
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--borde);
+  background: var(--panel2);
+  color: var(--texto);
+  transition: border-color .12s ease, background .12s ease;
+}
+input::placeholder { color: #6f6f80; }
+input:focus, select:focus { outline: 3px solid rgba(167,139,250,.50); border-color: var(--acento); }
+#documento { font-size: 24px; letter-spacing: 1px; }
+
+button { cursor: pointer; border: 1px solid var(--borde); }
+button:active { transform: translateY(1px); }
+.principal { background: var(--acento); color: #1a1030; font-weight: 700; border-color: var(--acento); font-weight: 600; }
+.secundario { width: auto; min-width: 120px; min-height: 46px; }
+.peligro { background: #4a1f24; border-color: #7f3038; color: #ffd7da; }
+.ancho { width: 100%; }
+.enlace {
+  width: auto; min-height: 0; padding: 2px 6px; min-width: 0;
+  background: transparent; border: 0; color: var(--acento); text-decoration: underline;
+}
+
+.quien {
+  margin: 0 0 12px; padding: 12px 14px;
+  border-radius: 10px; border: 1px dashed var(--borde);
+  background: #191922; font-size: 15px;
+}
+.quien.vacio { color: var(--suave); }
+.quien.hallado { border-style: solid; border-color: var(--verde); }
+.quien.ausente { border-style: solid; border-color: var(--naranja); color: #ffe9b8; }
+/* El titulo y el detalle en renglones distintos SIEMPRE, no solo cuando la persona
+   aparece: pegados se leian como una sola frase sin sentido
+   («No aparece en la baseSe puede capturar igual...»). Lo destapo mirar el render, no
+   leer el codigo. */
+.quien strong { display: block; font-size: 19px; margin-bottom: 2px; }
+.quien .detalle { display: block; color: var(--suave); font-size: 14px; }
+.quien.ausente .detalle { color: #e8c98a; }
+/* FJ · los datos del paciente nuevo, pegados al aviso naranja de «no está en la base». */
+.paciente-nuevo { margin: -4px 0 12px; }
+.paciente-nuevo .aviso { margin: 0 0 10px; background: #3b2f16; color: #ffe9b8;
+                         border: 1px solid #7a5c1e; }
+
+.ayuda { margin: 6px 0 0; color: var(--suave); font-size: 13px; }
+.aviso { margin: 0 14px; padding: 10px 14px; border-radius: 10px; font-size: 15px; }
+main .aviso { margin: 0; }
+.aviso.rojo { background: #43222a; color: #ffd7da; border: 1px solid #7f3038; }
+.aviso.azul { background: var(--acento-hondo); color: #ddd2ff; border: 1px solid #4a3a70; }
+.aviso.verde { background: #14352a; color: #c7f2df; border: 1px solid #2b7357; }
+.aviso.naranja { background: #3b2f16; color: #ffe9b8; border: 1px solid #7a5c1e; }
+
+.lista { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.lista li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--panel2); border: 1px solid var(--borde);
+}
+.lista .datos { flex: 1 1 auto; min-width: 0; }
+.lista .titulo { display: block; font-weight: 600; }
+.lista .detalle { display: block; color: var(--suave); font-size: 13px; }
+/* Lo que le falta a una fila se ve EN LA FILA, no en un tooltip: con cincuenta
+   registros nadie los repasa uno a uno. */
+.lista li.incompleto { border-color: var(--naranja); }
+.lista li.incompleto .detalle { color: var(--naranja); }
+.lista li.enviado { opacity: .62; }
+.lista .quitar {
+  width: auto; min-width: 44px; min-height: 44px; padding: 0 12px;
+  background: transparent; color: var(--suave);
+}
+.vacia { color: var(--suave); font-size: 15px; padding: 8px 0; }
+
+dialog {
+  width: min(420px, calc(100vw - 32px));
+  border: 1px solid var(--borde); border-radius: 14px;
+  background: var(--panel); color: var(--texto);
+}
+dialog::backdrop { background: rgba(0, 0, 0, .72); }
+dialog h3 { margin: 0 0 12px; }
+dialog hr { border: 0; border-top: 1px solid var(--borde); margin: 14px 0; }
+
+.brindis {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+  max-width: calc(100vw - 32px);
+  padding: 12px 18px; border-radius: 999px;
+  background: #101015; border: 1px solid var(--acento); color: var(--texto);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  z-index: 10;
+}
+[hidden] { display: none !important; }
+
+/* Con la tablet acostada, el formulario y la lista caben lado a lado. */
+/* 🔴 EE (2026-09-12) · EN UNA TABLET, QUE SE APROVECHE EL ANCHO.
+   Su encargo: *«quisiera que las celdas y cuadros de la app aprovechen los espacios»*.
+
+   ⚠️ **Y era un fallo que metió el menú (EA · fase 1).** Esta regla existía desde antes y
+   repartía en DOS COLUMNAS lo que colgaba de `main`, que eran las tarjetas. Al meter el
+   menú, de `main` pasaron a colgar las PANTALLAS — así que el módulo entero se metía en
+   una columna y **la otra mitad quedaba vacía**. Medido a 1100 px: la pantalla ocupaba
+   529 y sobraban **543 px en blanco**.
+
+   Ahora las dos columnas las usan las TARJETAS de dentro, que es lo que se quería. */
+@media (min-width: 900px) {
+  /* ⚠️ El tope sube de 1100 a 1400: en un teléfono en HORIZONTAL (1600 px) el de antes
+     dejaba 528 px en blanco, que es justo lo que él enseñó. */
+  main { max-width: 1400px; }
+
+  #pantallaMedicina, #pantallaTransporte {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  /* EH · La sede manda sobre las dos columnas: es de la pantalla entera, no de una
+     tarjeta. (Antes esto era el botón de «volver», que se fue a la barra.) */
+  #pantallaMedicina > .sedes, #pantallaTransporte > .sedes {
+    grid-column: 1 / -1;
+    margin-left: 0; margin-right: 0;
+  }
+  /* Con sitio de sobra, los dos botones de la sede no tienen por qué medir media
+     pantalla cada uno. */
+  .sedes-botones { flex: 0 1 420px; }
+}
+
+
+/* ======================================================================
+   DX (2026-09-11) · Los desplegables, con el diseño de la app
+   ======================================================================
+   El `<select>` lo dibuja el sistema y no se deja pintar: se esconde —sigue siendo el
+   que manda— y lo que se ve es este botón, que abre una hoja con las opciones. */
+
+/* ⚠️ `min-width: 0` en los tres, y no sobra ninguno: dentro de un flex, una caja con
+   texto en una sola línea NO se encoge por debajo de su contenido aunque lleve
+   `text-overflow: ellipsis` — se sale. Medido con la prueba de anchos: 51 px de desborde
+   a 800 px, que es el ancho de su teléfono girado. */
+.desplegable { position: relative; min-width: 0; }
+.desplegable select {
+  /* Ni `display:none` ni `hidden`: tiene que seguir contando como control del
+     formulario y poder recibir el foco desde las pruebas. Se tapa con el botón. */
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  min-width: 0; opacity: 0; pointer-events: none;
+}
+.desplegable-boton {
+  /* 🔴 REJILLA de dos columnas, y no `flex`, por una razón medida: un `<button>` NO se
+     encoge por debajo de lo que mide su contenido —aunque el texto lleve `min-width: 0`
+     y puntos suspensivos—, así que con el nombre del servicio dentro empujaba la tarjeta
+     a **740 px en una pantalla de 412**. Comprobado probando los remedios uno a uno en el
+     navegador: con `overflow:hidden` seguía en 754; con esto baja a 412. */
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 8px; width: 100%;
+  text-align: left; font-size: 17px;
+  background: var(--panel2); color: var(--texto);
+  border: 1px solid var(--borde); border-radius: 12px;
+  min-height: var(--alto); padding: 10px 14px;
+  min-width: 0; max-width: 100%;
+}
+.desplegable-boton:disabled { opacity: .55; }
+.desplegable-texto {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.desplegable-texto.vacio { color: var(--suave); }
+.desplegable-texto b { color: var(--acento); font-weight: 700; margin-right: 6px; }
+.desplegable-flecha { color: var(--suave); font-size: 14px; }
+
+/* La hoja. Sube desde abajo porque es donde llega el pulgar. */
+.hoja-fondo {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0, 0, 0, .72);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.hoja {
+  width: 100%; max-width: 680px; max-height: 82vh;
+  display: flex; flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--borde); border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+}
+.hoja-cabecera { display: flex; align-items: center; gap: 10px; padding: 6px 4px 10px; }
+.hoja-cabecera h3 { flex: 1; margin: 0; font-size: 17px; }
+.hoja-cerrar {
+  min-height: 40px; width: 44px; padding: 0; border-radius: 10px;
+  background: var(--panel2); color: var(--suave); font-size: 17px;
+}
+.hoja-buscar { margin-bottom: 8px; }
+/* ⚠️ La lista es LO ÚNICO que se desplaza: con la hoja entera desplazándose, el
+   buscador y el título se iban de la pantalla al bajar. */
+.hoja-lista { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.hoja-opcion {
+  display: block; width: 100%; text-align: left;
+  background: transparent; border: 0; border-bottom: 1px solid var(--borde);
+  border-radius: 0; padding: 14px 6px; font-size: 16px; line-height: 1.35;
+  min-height: var(--alto);
+}
+.hoja-opcion b { display: block; color: var(--acento); font-size: 15px; }
+.hoja-opcion span { color: var(--texto); }
+.hoja-opcion.puesta { background: rgba(167, 139, 250, .14); }
+.hoja-opcion:active { background: var(--panel2); }
+
+
+/* ======================================================================
+   DY (2026-09-11) · Las ventanas de aviso y de pregunta, con el diseño de la app
+   ======================================================================
+   Sustituyen a los cuadros del navegador («… says · Cancel / OK»), que salían grises, en
+   inglés y con la dirección de la página. */
+.ventana-fondo {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(0, 0, 0, .72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.ventana {
+  width: 100%; max-width: 420px;
+  background: var(--panel);
+  border: 1px solid var(--borde); border-radius: 16px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .45);
+}
+.ventana h3 { margin: 0 0 10px; font-size: 18px; }
+.ventana p { margin: 0 0 8px; color: var(--suave); line-height: 1.45; }
+.ventana-botones {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.ventana-si { background: var(--acento); color: #1a1030; border-color: var(--acento); font-weight: 600; }
+.ventana-si.peligro { background: var(--rojo); border-color: var(--rojo); color: #2b0606; }
+.ventana-no { background: var(--panel2); color: var(--texto); }
+
+/* ======================================================================
+   EA (2026-09-11) · EL MENU DE MODULOS
+   ======================================================================
+   Con la forma del programa de Enrique: tarjetas grandes, en la tablet dos arriba y dos
+   abajo, y en un telefono una debajo de otra. No es un `media query` con anchos a mano
+   sino `auto-fit`: asi decide el ancho REAL que haya, y no hay ningun tamaño de pantalla
+   que se quede fuera —que es §4.9 del programa de escritorio aplicado aqui. */
+
+[hidden] { display: none !important; }   /* o `.pantalla` le ganaria al atributo */
+
+.lema {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;      /* en un teléfono estrecho, el enlace baja de línea */
+  margin: 14px 14px 4px;
+  color: var(--suave);
+  font-size: 15px;
+}
+.lema p { margin: 0; flex: 1 1 220px; min-width: 0; }
+.lema .enlace { flex: 0 0 auto; font-size: 15px; }
+
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  padding: 10px 14px;
+}
+
+.tarjeta-menu {
+  /* Es un `button` de verdad, no un `div` con un `onclick`: asi responde al teclado y
+     el lector de pantalla lo anuncia como lo que es. */
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px;
+  min-height: 186px;
+  padding: 24px 18px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--fondo) 140%);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  color: var(--texto);
+  font: inherit;
+  cursor: pointer;
+  position: relative;        /* para la marca «en camino» de la esquina */
+  /* ⚠️ `min-width: 0` porque un boton NO se encoge por debajo de su contenido y se
+     saldria de lo ancho: es exactamente lo que costo L-261 en la fila de la sede. */
+  min-width: 0;
+}
+/* 🔴 EH · El toque se ve. Antes solo encogía un poco, y en una pantalla táctil eso se
+   pierde bajo el propio dedo: ahora además se enciende el borde en morado, que sí se ve
+   alrededor de la mano. */
+.tarjeta-menu:active {
+  transform: scale(.985);
+  border-color: var(--acento);
+  background: linear-gradient(180deg, var(--panel2) 0%, var(--fondo) 140%);
+}
+.tarjeta-menu:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+/* EH · Jerarquía: el nombre del módulo manda y la explicación acompaña. Antes iban a 18 y
+   14 px —casi lo mismo—, así que la tarjeta se leía como un párrafo. */
+.tarjeta-menu strong {
+  font-size: 19.5px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2;
+}
+.tarjeta-menu small {
+  color: var(--suave); font-size: 13.5px; line-height: 1.4;
+  max-width: 30ch;          /* una línea muy larga se lee peor que dos cortas */
+  /* Que el texto largo se reacomode y nunca se recorte (§4.9). */
+  overflow-wrap: anywhere;
+}
+
+.tarjeta-menu .icono {
+  display: grid; place-items: center;
+  /* EH · más grande: es lo primero que se busca al entrar, y de lejos el color del icono
+     es lo único que distingue una tarjeta de otra. */
+  width: 72px; height: 72px; border-radius: 22px;
+  border: 1px solid var(--borde);
+}
+.tarjeta-menu .icono svg { width: 34px; height: 34px; }
+/* Cada modulo con su color, como los tenia el: los dos de captura en la gama morada de la
+   app, y los dos de accion con SU color de siempre —verde lo que manda, ambar lo que
+   descarga—, que son los mismos del resto de la pantalla. */
+.icono.morado { background: var(--acento-hondo); color: var(--acento); border-color: #4a3a70; }
+.icono.lila   { background: #241a36; color: #c4b0ff; border-color: #453563; }
+.icono.verde  { background: #13301f; color: var(--verde); border-color: #2b5c40; }
+.icono.ambar  { background: #302512; color: var(--naranja); border-color: #5f4a1c; }
+
+/* (El botón «volver» de dentro de cada pantalla se quitó en EH: la flecha vive ahora en
+   la barra, donde está siempre a la vista aunque se haya bajado media pantalla. Su regla
+   `width:auto` se conserva como aviso: hay un `input, select, button { width: 100% }`
+   global —pensado para los campos de la captura— que estira CUALQUIER botón nuevo que se
+   ponga fuera de una tarjeta.) */
+
+/* ⚠️ Lo que la tarjeta promete y lo que hace HOY tienen que coincidir. Mientras un modulo
+   no este, se dice —y al tocarlo se explica que hacer entre tanto—. Una tarjeta que
+   promete algo que no pasa se lee como que la app esta rota. La marca se quita sola
+   cuando la fase se cierra. */
+.en-camino {
+  /* ⚠️ En el flujo normal EMPUJABA el titulo y cada tarjeta alineaba su texto a una altura
+     distinta —el panel se leia en zigzag, que es lo mismo que arreglo §4.11 en el programa
+     de escritorio—. Se saca del flujo y se pone en la esquina. */
+  position: absolute; top: 10px; right: 10px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--panel2);
+  border: 1px solid var(--borde);
+  color: var(--suave);
+  font-size: 12px; letter-spacing: .02em;
+}
+
+
+/* ======================================================================
+   🔴🔴 GA-2 (2026-09-21) · EL REDISEÑO — maqueta `docs/maqueta/app_captura_rediseno.html`
+   ======================================================================
+   Aprobada por él (*«haz el rediseño»*), con el estilo de GestionDineroTrabajo y las medidas
+   que contestó esa conversación en `PREGUNTA_DISENO_DESDE_VALIDADOR.md`. Va AL FINAL a
+   propósito: manda sobre lo de arriba sin reescribirlo, y si algo no convence se quita un
+   bloque de aquí y vuelve lo de antes.
+   ⚠️ Lo que NO cambia: los `id`, el `<select>` de verdad debajo de cada desplegable, los
+   colores de ESTADO (verde / naranja / rojo) y los tamaños para el dedo (44 px mínimo). */
+
+body {
+  font: 15.5px/1.5 var(--letra);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  /* Dos manchas de color arriba y el azul marino de fondo. SIN `fixed`: en una tablet un
+     fondo fijo se repinta en cada desplazamiento y da tirones (lo pagó GestionDinero). */
+  background:
+    radial-gradient(1100px 520px at 0% -8%, #1a2c55 0%, transparent 62%),
+    radial-gradient(900px 480px at 100% 0%, #221848 0%, transparent 58%),
+    var(--fondo);
+  background-repeat: no-repeat;
+  background-color: var(--fondo);
+  min-height: 100vh;
+}
+h1, h2, h3, .barra-centro strong, .tarjeta-menu strong, .cifra strong {
+  font-family: var(--letra-titulo);
+}
+
+/* --- La barra de arriba: translúcida, del color del fondo --- */
+.barra { background: rgba(10, 17, 32, .88); border-bottom-color: var(--borde); }
+.barra-centro strong { font-weight: 600; font-size: 16.5px; }
+
+/* --- La navegación: lateral en el portátil, abajo en la tablet --- */
+.navegacion {
+  position: fixed; z-index: 6;
+  display: flex; gap: 6px;
+  background: rgba(10, 17, 32, .92);
+}
+.navegacion button {
+  width: auto; min-height: 48px; min-width: 0;
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px;
+  background: transparent; border: 0; border-radius: 12px;
+  color: var(--suave); font: 500 14.5px var(--letra); text-align: left;
+}
+/* GA2-4 · En pantalla táctil el `:hover` se queda PEGADO tras tocar (su captura: «Más» iluminado).
+   Solo donde hay ratón de verdad. */
+@media (hover: hover) { .navegacion button:hover { background: var(--panel); color: var(--texto); } }
+.navegacion button[aria-current="page"] {
+  color: #fff;
+  background: linear-gradient(135deg, var(--acento), var(--acento-fuerte));
+  box-shadow: 0 6px 16px rgba(124, 58, 237, .35);
+}
+.navegacion svg {
+  width: 21px; height: 21px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+}
+.nav-marca { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; }
+.nav-marca img { width: 38px; height: 38px; }
+.nav-marca b { display: block; font-family: var(--letra-titulo); font-weight: 600; }
+.nav-marca small { display: block; color: var(--suave); font-size: 12px; }
+
+/* PORTÁTIL (≥ 1100): la lateral completa, con los nombres. */
+@media (min-width: 1100px) {
+  .navegacion { top: 0; bottom: 0; left: 0; width: 236px; flex-direction: column;
+                padding: 22px 14px; border-right: 1px solid var(--borde); }
+  .navegacion .nav-abajo { margin-top: auto; }
+  body { padding-left: 236px; }
+  /* Con la lateral, el logo y la flecha de la barra sobran: la sección activa se ve a la
+     izquierda y desde ahí se vuelve al Inicio. Se ocultan sin sacarlos de la rejilla para
+     que el título siga centrado. */
+  .barra .logo, .barra .barra-atras { visibility: hidden; }
+}
+/* MEDIA PANTALLA (761–1099): la lateral solo con iconos. 236 px serían un cuarto de la
+   ventana cuando la usa al lado de otra (D-26 de GestionDinero). */
+@media (min-width: 761px) and (max-width: 1099px) {
+  .navegacion { top: 0; bottom: 0; left: 0; width: 76px; flex-direction: column;
+                align-items: center; padding: 18px 10px; border-right: 1px solid var(--borde); }
+  .navegacion button { justify-content: center; width: 52px; padding: 12px 0; }
+  .navegacion button span, .nav-marca div { display: none; }
+  .nav-marca { padding: 0 0 14px; }
+  .navegacion .nav-abajo { margin-top: auto; }
+  body { padding-left: 76px; }
+}
+/* TABLET EN VERTICAL Y TELÉFONO (≤ 760): la barra de abajo, todos iguales y sin fondo propio
+   para ninguno (él descartó en GestionDinero el botón central destacado). */
+@media (max-width: 760px) {
+  .navegacion { left: 0; right: 0; bottom: 0; justify-content: space-around; gap: 0;
+                padding: 6px 6px calc(8px + env(safe-area-inset-bottom));
+                border-top: 1px solid var(--borde); }
+  .nav-marca, .navegacion .solo-ancho { display: none; }
+  .navegacion button { flex-direction: column; gap: 3px; justify-content: center;
+                       flex: 1 1 0; padding: 6px 2px; font-size: 11.5px; min-height: 52px;
+                       text-align: center; }
+  .navegacion button[aria-current="page"] { background: none; box-shadow: none; color: #fff; }
+  .navegacion button[aria-current="page"]::after {
+    content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--acento);
+  }
+  body { padding-bottom: 86px; }
+}
+
+/* --- El Inicio: saludo, cifras y módulos --- */
+.lema { margin: 18px 14px 12px; align-items: flex-end; }
+.lema > div { flex: 1 1 260px; min-width: 0; }
+.saludo {
+  margin: 0 0 4px; font-size: 30px; font-weight: 700; line-height: 1.2;
+  background: linear-gradient(90deg, #c4b5fd, #5eead4);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lema p { font-size: 13.5px; }
+.cifras {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+  padding: 0 14px 6px;
+}
+@media (max-width: 1099px) { .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cifra {
+  position: relative; overflow: hidden; min-width: 0;
+  display: flex; flex-direction: column; gap: 1px;
+  background: var(--panel); border: 1px solid var(--borde);
+  border-radius: var(--radio); padding: 16px 18px; box-shadow: var(--sombra);
+}
+/* La mancha de color difuminada en la esquina: lo que más «se ve bacano» según él, en
+   GestionDinero. Un círculo de 140 px al 17 %, medio fuera de la tarjeta. */
+.cifra::after {
+  content: ""; position: absolute; width: 140px; height: 140px; border-radius: 50%;
+  right: -52px; top: -52px; background: var(--c); opacity: .17; filter: blur(8px);
+  pointer-events: none;
+}
+.chip {
+  width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+  margin-bottom: 10px; color: #fff;
+  background: linear-gradient(135deg, var(--c), rgba(255, 255, 255, .08));
+}
+.chip svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;
+            stroke-linecap: round; stroke-linejoin: round; }
+.cifra-nombre { font-size: 13px; color: var(--suave); }
+.cifra strong { font-size: 24px; font-weight: 600; line-height: 1.25; }
+.cifra small { font-size: 12px; color: var(--suave); overflow-wrap: anywhere; }
+.titulo-seccion { margin: 14px 14px 0; font-size: 16px; font-weight: 600; }
+
+.menu { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.tarjeta-menu {
+  /* Como en la maqueta: el chip a la izquierda y el texto al lado, en vez de apilados. */
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto;
+  column-gap: 16px; row-gap: 2px; align-items: center; justify-items: start;
+  text-align: left; min-height: 120px; padding: 18px 20px;
+  background: var(--panel2); border-color: var(--borde); border-radius: var(--radio);
+  overflow: hidden; box-shadow: var(--sombra);
+}
+.tarjeta-menu .icono { grid-row: 1 / span 2; width: 56px; height: 56px; border-radius: 15px; border: 0; }
+.tarjeta-menu .icono svg { width: 28px; height: 28px; }
+.tarjeta-menu strong { align-self: end; font-size: 17px; font-weight: 600; }
+.tarjeta-menu small { align-self: start; max-width: none; }
+.tarjeta-menu:active { border-color: var(--acento); }
+@media (hover: hover) { .tarjeta-menu:hover { border-color: var(--acento); } }
+/* Los colores de cada módulo, ahora en degradado como los chips de las cifras. */
+.icono.morado { background: linear-gradient(135deg, #8b5cf6, #5b3bb5); color: #fff; }
+.icono.lila   { background: linear-gradient(135deg, var(--turquesa), #0e7490); color: #fff; }
+.icono.verde  { background: linear-gradient(135deg, #22c55e, #15803d); color: #fff; }
+.icono.ambar  { background: linear-gradient(135deg, #f59e0b, #b45309); color: #fff; }
+
+/* --- Las tarjetas de trabajo --- */
+.tarjeta {
+  background: var(--panel); border-color: var(--borde);
+  border-radius: var(--radio); padding: 18px 20px; box-shadow: var(--sombra);
+}
+.tarjeta h2 { font-size: 17px; font-weight: 600; margin-bottom: 16px; }
+.cuenta { background: rgba(167, 139, 250, .16); color: #c4b5fd; }
+
+/* --- Los campos: el rótulo ENCIMA del campo, como en la maqueta aprobada ---
+   ⚠️ SUPERA el «rótulo DENTRO del campo» de EH (arriba): la maqueta que él aprobó los lleva
+   encima, y se le dijo. El `<label>` es el mismo; solo cambia dónde se dibuja. */
+.campo label {
+  position: static; display: block; transform: none !important;
+  margin: 0 0 5px; max-width: none;
+  font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none !important;
+  color: var(--suave);
+}
+.campo input, .campo select, .campo .desplegable-boton {
+  padding-top: 10px; padding-bottom: 10px; min-height: var(--alto);
+}
+.campo input:placeholder-shown:not(:focus) { padding-top: 10px; padding-bottom: 10px; }
+.campo input:placeholder-shown:not(:focus)::placeholder { color: #5b6d8c; }
+.campo .fecha-visible { left: 13px; bottom: 14px; }
+input, select, .desplegable-boton {
+  background: var(--campo); border-color: var(--borde-fuerte); border-radius: var(--radio-chico);
+}
+input:focus, select:focus, .desplegable-boton:focus {
+  outline: none; border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, .28);
+}
+#documento { font-size: 20px; }
+
+/* --- Botones --- */
+button { border-radius: var(--radio-chico); }
+.principal, .ventana-si {
+  color: #fff; font-weight: 600; border: 0;
+  background: linear-gradient(135deg, var(--acento), var(--acento-fuerte));
+  box-shadow: 0 6px 16px rgba(124, 58, 237, .35);
+}
+@media (hover: hover) { .principal:hover, .ventana-si:hover { filter: brightness(1.08); } }
+.secundario { background: var(--panel2); border-color: var(--borde); color: var(--texto); font-weight: 500; }
+.peligro { background: rgba(240, 82, 82, .12); border-color: rgba(240, 82, 82, .45); color: #fecaca; }
+
+/* --- La sede: selector segmentado --- */
+.sedes-botones { background: var(--campo); border-color: var(--borde); border-radius: 12px; }
+.sede-boton { min-height: 44px; border-radius: 9px; }
+.sede-boton[aria-pressed="true"] {
+  color: #fff; border-color: transparent;
+  background: linear-gradient(135deg, var(--acento), var(--acento-fuerte));
+  box-shadow: 0 6px 16px rgba(124, 58, 237, .35);
+}
+
+/* --- Quién es, la lista y los avisos --- */
+.quien { background: var(--campo); border-radius: 12px; }
+.quien.hallado { background: rgba(20, 184, 166, .10); border-color: rgba(20, 184, 166, .45); }
+.lista li { background: var(--campo); border-color: var(--borde); border-radius: 12px; }
+.aviso { border-radius: 12px; }
+.aviso.naranja, .paciente-nuevo .aviso {
+  background: rgba(245, 158, 11, .10); border-color: rgba(245, 158, 11, .40); color: #fde7b0;
+}
+.aviso.rojo { background: rgba(240, 82, 82, .12); border-color: rgba(240, 82, 82, .45); color: #fecaca; }
+.aviso.verde { background: rgba(74, 222, 128, .10); border-color: rgba(74, 222, 128, .40); color: #c7f2df; }
+
+/* --- Cuadros y hojas --- */
+dialog, .ventana, .hoja {
+  background: var(--panel); border-color: var(--borde-fuerte); box-shadow: var(--sombra);
+}
+dialog { border-radius: var(--radio); }
+dialog h3, .ventana h3, .hoja-cabecera h3 { font-family: var(--letra-titulo); font-weight: 600; }
+dialog::backdrop, .ventana-fondo, .hoja-fondo { background: rgba(4, 8, 18, .72); }
+.hoja-opcion.puesta { background: rgba(139, 92, 246, .16); }
+.brindis { background: var(--panel); border-color: var(--acento); }
+
+/* GA-2 · Con sitio, los cuatro módulos van 2 y 2, como en la maqueta (con 3+1 el cuarto
+   quedaba solo en su fila). */
+@media (min-width: 900px) { .menu { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

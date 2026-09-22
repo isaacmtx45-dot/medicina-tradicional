@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1120">
+<title>Medicina Tradicional — captura</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icono-192.png">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<!-- ======================================================================
+     EH (2026-09-12) · LA CABECERA, LIMPIA
+     ======================================================================
+     Su encargo: *«le falta diseño, que se vea más bonito aún»*, con la app de Enrique
+     delante. La suya tiene una barra de tres piezas —flecha atras, titulo centrado y
+     nada mas—; la nuestra llevaba logo + titulo + estado de la base + el desplegable de
+     la sede, todo apretado en la misma fila y envolviendose en un telefono.
+
+     🔴 **La sede BAJA a la pantalla, pero NO desaparece de aqui.** Atribuirle a una sede
+     las atenciones de la otra es el error mas caro de este proceso, asi que la sede
+     puesta se sigue leyendo en la barra —en el renglon de debajo del titulo, junto al
+     estado de la base— mientras se escoge abajo, con dos botones grandes. Quitarla de la
+     vista para que la barra quede bonita habria sido cambiar un fallo de diseño por uno
+     de datos. -->
+<header class="barra">
+  <!-- ⚠️ Lleva `data-volver` como los botones de dentro: el enganche de app.js recorre
+       TODOS los que lo tengan, asi que la flecha funciona sin tocar el JavaScript. -->
+  <button type="button" class="barra-atras" id="atrasBarra" data-volver hidden
+          aria-label="Volver al menú">&lsaquo;</button>
+  <img class="logo" id="logoBarra" src="icono-192.png" alt="Makushama">
+  <div class="barra-centro">
+    <!-- EA · El titulo lo pone `irA()`: en el menu dice la IPS y dentro, el modulo. -->
+    <strong id="tituloBarra">Makushama IPS</strong>
+    <small id="estadoBase">base: sin cargar</small>
+  </div>
+  <!-- La tercera columna, del ancho de la primera, es lo que deja el titulo centrado de
+       verdad y no «centrado entre lo que sobra». -->
+  <span class="barra-hueco" aria-hidden="true"></span>
+</header>
+
+<!-- 🔴 GA-2 (2026-09-21) · LA NAVEGACIÓN DEL REDISEÑO (maqueta aprobada por él).
+     En el PORTÁTIL, una barra lateral fija; en la TABLET y el teléfono, una barra abajo.
+     Es la misma lista con dos formas, como en GestionDineroTrabajo (D-63 de allá).
+     ⚠️ No lleva lógica propia: cada botón llama a lo que ya existía —`irA()` o el botón de
+     la tarjeta del menú—, así que hacer lo mismo desde dos sitios no puede dar dos
+     resultados distintos. -->
+<nav class="navegacion" aria-label="Secciones">
+  <div class="nav-marca">
+    <img src="icono-192.png" alt="">
+    <div><b>Makushama</b><small>Medicina Tradicional</small></div>
+  </div>
+  <button type="button" data-nav="menu"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>Inicio</span></button>
+  <button type="button" data-nav="medicina"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 8.3-7 10-4-1.7-7-5.6-7-10V6z"/><path d="M12 8.5v6M9 11.5h6"/></svg><span>Medicina</span></button>
+  <button type="button" data-nav="transporte"><svg viewBox="0 0 24 24"><path d="M3 7h10v8H3z"/><path d="M13 10h4l4 3v2h-8z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><span>Transporte</span></button>
+  <button type="button" data-accion="irSincronizar"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4.5L4 9"/><path d="M4 13a8 8 0 0 0 14 4.5L20 15"/><path d="M4 5v4h4M20 19v-4h-4"/></svg><span>Sincronizar</span></button>
+  <button type="button" data-accion="irBase" class="solo-ancho"><svg viewBox="0 0 24 24"><path d="M7 16a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 9a3.5 3.5 0 0 1 .5 7"/><path d="M12 11v7M9 15.5l3 3 3-3"/></svg><span>Base de datos</span></button>
+  <button type="button" data-accion="masDesdeMenu" class="nav-abajo"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Más</span></button>
+</nav>
+
+<!-- El `<select>` de la sede sigue siendo el control de verdad —es el que guarda el
+     ajuste y el que disparan las pruebas— y lo que se ve son los dos botones de cada
+     pantalla. Mismo reparto que los desplegables de DX: el control manda, el dibujo se
+     hace aparte. -->
+<select id="sede" class="sede-real" aria-label="Sede"></select>
+
+<!-- La sede se escoge UNA vez y se ve todo el rato: atribuirle a una sede las
+     atenciones de la otra es el error mas caro de este proceso. -->
+<p id="avisoSede" class="aviso rojo" hidden>Escoge la sede antes de capturar.</p>
+<p id="avisoEnvio" class="aviso" hidden></p>
+<!-- 🔴 DY-2 · Cuando el sitio no deja comprobar si hay version nueva (401/403). Va
+     ARRIBA y no en un cuadro: es una situacion que dura, no un aviso de un momento, y
+     lo tiene que ver quien este usando la app aunque no toque nada. -->
+<p id="avisoVersion" class="aviso naranja" hidden></p>
+<!-- GA2-4 · Entró una versión nueva y había algo escrito a medias: no se recarga sola. -->
+<p id="avisoActualizar" class="aviso verde" hidden>
+  Hay una versión nueva de la app. Termina lo que estás escribiendo y
+  <button type="button" class="enlace" id="botonActualizar">actualiza aquí</button>.
+</p>
+<p id="avisoBase" class="aviso naranja" hidden>
+  No hay base de pacientes cargada. Puedes capturar igual, pero no se vera el nombre de
+  nadie. <button type="button" class="enlace" id="irCargarBase">Cargar la base…</button>
+</p>
+
+<main>
+
+<!-- ======================================================================
+     EA (2026-09-11) · EL MENU, con la forma del programa de Enrique
+     ======================================================================
+     Sus capturas: cuatro tarjetas, en la tablet «dos arriba y dos abajo». Los textos
+     de debajo son los suyos, palabra por palabra, porque ya estan probados con quien
+     los usa — no hay por que reescribirlos peor. -->
+<section id="pantallaMenu" class="pantalla">
+  <!-- 🔴 EB (2026-09-12) · Lo que es de la APP ENTERA se alcanza desde aqui, y ARRIBA.
+       Su reporte: «pero cuando entro a la app no sale el mas que tu dices». Al meter el
+       menu en la fase 1, «Más…» se quedo dentro de Medicina Tradicional — y ahi viven la
+       conexion con el Drive y la version, que no son de ese modulo.
+       ⚠️ Se probo primero al PIE del menu y se subio al mirarlo renderizado: abajo queda
+       detras de las cuatro tarjetas, o sea que para encontrarlo hay que bajar — que es
+       justo lo que el no pudo hacer. Aqui se ve sin tocar nada (L-31). -->
+  <div class="lema">
+    <div>
+      <!-- GA-2 · El saludo SIN nombre: esta página se publica y la usa quien capture. -->
+      <h1 class="saludo" id="saludo">Hola</h1>
+      <p>Captura local, consulta por documento y sincronización organizada por módulos y
+         sedes.</p>
+    </div>
+    <button type="button" class="enlace" id="masDesdeMenu">Más opciones…</button>
+  </div>
+
+  <!-- 🔴 GA-2 · Las cuatro cifras del Inicio (maqueta aprobada). Salen de lo que la app YA
+       guarda —lo capturado, lo descargado, lo mandado al Drive y la base—; ninguna se
+       calcula aparte de lo que enseña su pantalla. -->
+  <div class="cifras">
+    <div class="cifra" style="--c: var(--acento)">
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 8.3-7 10-4-1.7-7-5.6-7-10V6z"/><path d="M12 8.5v6M9 11.5h6"/></svg></span>
+      <span class="cifra-nombre">Capturado hoy</span>
+      <strong id="cifraHoy">0</strong>
+      <small id="cifraHoyDetalle">atenciones y viajes</small>
+    </div>
+    <div class="cifra" style="--c: var(--naranja)">
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span>
+      <span class="cifra-nombre">Sin descargar</span>
+      <strong id="cifraSinDescargar">0</strong>
+      <small id="cifraSinDescargarDetalle">todo descargado</small>
+    </div>
+    <div class="cifra" style="--c: var(--turquesa)">
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4.5L4 9"/><path d="M4 13a8 8 0 0 0 14 4.5L20 15"/><path d="M4 5v4h4M20 19v-4h-4"/></svg></span>
+      <span class="cifra-nombre">En el Drive</span>
+      <strong id="cifraDrive">—</strong>
+      <small id="cifraDriveDetalle">sin conexión configurada</small>
+    </div>
+    <div class="cifra" style="--c: var(--rosa)">
+      <span class="chip"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg></span>
+      <span class="cifra-nombre">Base de pacientes</span>
+      <strong id="cifraBase">—</strong>
+      <small id="cifraBaseDetalle">sin cargar</small>
+    </div>
+  </div>
+  <h2 class="titulo-seccion">¿Qué vas a hacer?</h2>
+
+  <div class="menu">
+    <button type="button" class="tarjeta-menu" id="irMedicina">
+      <span class="icono morado" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 8.3-7 10-4-1.7-7-5.6-7-10V6z"/>
+        <path d="M12 8.5v6M9 11.5h6"/></svg></span>
+      <strong>Medicina Tradicional</strong>
+      <small>Captura del servicio, consulta por documento y registros del mes.</small>
+    </button>
+
+    <button type="button" class="tarjeta-menu" id="irTransporte">
+      <span class="icono lila" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round"><path d="M3 7h10v8H3z"/><path d="M13 10h4l4 3v2h-8z"/>
+        <circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></span>
+      <strong>Transporte</strong>
+      <small>Registro del transporte, consulta visual del paciente y control local.</small>
+    </button>
+
+    <button type="button" class="tarjeta-menu" id="irSincronizar">
+      <span class="icono verde" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14-4.5L4 9"/>
+        <path d="M4 13a8 8 0 0 0 14 4.5L20 15"/><path d="M4 5v4h4M20 19v-4h-4"/></svg></span>
+      <strong>Sincronizar</strong>
+      <small>Sincroniza globalmente todo lo pendiente de todos los módulos.</small>
+    </button>
+
+    <button type="button" class="tarjeta-menu" id="irBase">
+      <span class="icono ambar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round"><path d="M7 16a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 9
+        a3.5 3.5 0 0 1 .5 7"/><path d="M12 11v7M9 15.5l3 3 3-3"/></svg></span>
+      <strong>Actualizar base de datos</strong>
+      <small>Actualiza de una vez las bases locales de Riohacha y Dibulla.</small>
+    </button>
+  </div>
+
+</section>
+
+<!-- ================= MEDICINA TRADICIONAL: lo que ya existia ================= -->
+<section id="pantallaMedicina" class="pantalla" hidden>
+
+<!-- 🔴 EH · La sede, en DOS BOTONES y dentro de la pantalla.
+     Era un desplegable en la barra: tres toques (abrir la hoja, buscar, escoger) para lo
+     que solo tiene dos respuestas, varias veces al dia. Y ahora se ve CUAL esta puesta
+     sin abrir nada, que es lo que de verdad importa aqui. -->
+<div class="sedes" data-sedes>
+  <span class="sedes-titulo">Sede</span>
+  <div class="sedes-botones"></div>
+</div>
+
+<section class="tarjeta" id="panelCaptura">
+  <h2>Capturar una atención</h2>
+
+  <div class="campo">
+    <label for="documento">Número de documento</label>
+    <!-- 🔴 El ejemplo NO puede ser una cédula de verdad: esta página se publica en un
+         hosting, así que un número de la base sería un dato de un paciente puesto en un
+         sitio público. Lo cazó el guardarraíl de `empaquetar_app_tablet.py`, no leerlo. -->
+    <input id="documento" inputmode="numeric" autocomplete="off" enterkeyhint="next"
+           placeholder="número de documento">
+  </div>
+
+  <!-- Al escribir el documento sale de quien es. Sin esto no hay forma de saber si el
+       numero esta bien escrito hasta tener el mes entero digitado. -->
+  <div id="quienEs" class="quien vacio">Escribe el documento para ver de quién es.</div>
+
+  <!-- 🔴 FJ (2026-09-16) · Si el documento NO está en la base, ella escribe los datos del
+       paciente. Su frase: «puede que no esté el paciente en la base de datos, entonces
+       sería bueno que tengamos una base propia con los pacientes nuevos». -->
+  <div id="pacienteNuevo" class="paciente-nuevo" hidden>
+    <p class="aviso">Paciente nuevo: escribe sus datos. Se guardan para la próxima vez.</p>
+    <div class="campo">
+      <label for="nNombre">Nombre completo</label>
+      <input id="nNombre" autocomplete="off" autocapitalize="characters" enterkeyhint="next"
+             placeholder="nombres y apellidos">
+    </div>
+    <div class="fila">
+      <div class="campo">
+        <label for="nNacimiento">Fecha de nacimiento</label>
+        <input id="nNacimiento" type="date">
+      </div>
+      <div class="campo estrecho">
+        <label for="nSexo">Sexo</label>
+        <select id="nSexo">
+          <option value="">—</option>
+          <option value="F">F · Femenino</option>
+          <option value="M">M · Masculino</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="fila">
+    <div class="campo estrecho">
+      <label for="tipo">Tipo</label>
+      <select id="tipo"></select>
+    </div>
+    <div class="campo">
+      <label for="fecha">Fecha de prestación</label>
+      <input id="fecha" type="date">
+    </div>
+  </div>
+
+  <div class="fila">
+    <div class="campo">
+      <label for="cups">Servicio (CUPS)</label>
+      <select id="cups"></select>
+    </div>
+    <div class="campo">
+      <label for="subcodigo">Subcódigo</label>
+      <select id="subcodigo"></select>
+    </div>
+  </div>
+
+  <div class="campo">
+    <label for="motivo">Código de motivo</label>
+    <!-- DX (2026-09-11) · Era un campo de ESCRIBIR con sugerencias, y por ahi entro un
+         motivo que el subcodigo no admite: el `564` con el `S50003-8`, que solo admite 8.
+         Lo vio el en su telefono. Ahora es un desplegable, como los otros dos, asi que
+         solo se puede escoger lo que cabe.
+         ⚠️ Esto SUPERA la nota que habia aqui («editable a proposito porque 18 de 481
+         registros historicos usan un motivo fuera del catalogo»): aquello valia para LEER
+         lo ya reportado, no para capturar algo nuevo que la plataforma va a rechazar. -->
+    <select id="motivo"></select>
+    <small id="ayudaMotivo" class="ayuda"></small>
+  </div>
+
+  <button id="agregar" class="principal">Agregar y seguir</button>
+  <p id="avisoCampo" class="aviso rojo" hidden></p>
+</section>
+
+<section class="tarjeta">
+  <div class="cabecera">
+    <h2>Capturado <span id="cuantos" class="cuenta">0</span></h2>
+    <div class="acciones">
+      <button id="enviar" class="secundario" hidden>Mandar al Drive</button>
+      <button id="descargar" class="secundario">Descargar</button>
+      <button id="mas" class="secundario">Más…</button>
+    </div>
+  </div>
+  <p class="ayuda" id="ayudaGuardado">
+    Todo se guarda en este aparato, aunque la cierres o se apague.
+  </p>
+  <ul id="lista" class="lista"></ul>
+</section>
+
+</section><!-- fin pantallaMedicina -->
+
+<!-- ======================================================================
+     EA · fase 2 (2026-09-12) · TRANSPORTE (S50008)
+     ======================================================================
+     Los campos salen de la tabla `transport_records` del programa de Enrique, que es el
+     modelo que el escogio, cruzada con lo que nuestro plano necesita de verdad
+     (`ViajeTransporte` + `BeneficiarioTransporte`). Lo demas —razon social, NIT, CUPS,
+     subcodigo, pueblo, y el nombre, la edad y el sexo del paciente— lo completa el
+     programa, igual que en Medicina Tradicional: aqui solo va lo que ella SABE. -->
+<section id="pantallaTransporte" class="pantalla" hidden>
+
+<div class="sedes" data-sedes>
+  <span class="sedes-titulo">Sede</span>
+  <div class="sedes-botones"></div>
+</div>
+
+<section class="tarjeta">
+  <h2>Registrar un transporte</h2>
+
+  <div class="campo">
+    <label for="tDocumento">Número de documento</label>
+    <input id="tDocumento" inputmode="numeric" autocomplete="off" enterkeyhint="next"
+           placeholder="número de documento">
+  </div>
+  <div id="tQuienEs" class="quien vacio">Escribe el documento para ver de quién es.</div>
+
+  <div class="fila">
+    <div class="campo estrecho">
+      <label for="tTipo">Tipo</label>
+      <select id="tTipo"></select>
+    </div>
+    <div class="campo">
+      <label for="tFecha">Fecha del viaje</label>
+      <input id="tFecha" type="date">
+    </div>
+  </div>
+
+  <div class="fila">
+    <div class="campo">
+      <label for="tMedio">Medio de transporte</label>
+      <select id="tMedio"></select>
+    </div>
+    <div class="campo">
+      <!-- La placa solo es una placa cuando el medio es vehiculo; si no, va `NA` y la
+           app lo pone sola. Esta comprobado en los planos que ya acepto Dusakawi. -->
+      <label for="tPlaca">Placa</label>
+      <input id="tPlaca" autocomplete="off" placeholder="placa del vehículo">
+    </div>
+  </div>
+
+  <div class="fila">
+    <div class="campo">
+      <label for="tOrigen">Lugar de origen</label>
+      <input id="tOrigen" autocomplete="off" placeholder="de dónde salió">
+    </div>
+    <div class="campo">
+      <label for="tDestino">Lugar de destino</label>
+      <input id="tDestino" autocomplete="off" placeholder="a dónde llegó">
+    </div>
+  </div>
+
+  <div class="fila">
+    <div class="campo">
+      <label for="tValor">Valor total del viaje</label>
+      <input id="tValor" inputmode="numeric" autocomplete="off" placeholder="sin puntos">
+    </div>
+    <div class="campo">
+      <label for="tBeneficiado">Tipo de beneficiado</label>
+      <select id="tBeneficiado"></select>
+    </div>
+  </div>
+
+  <div class="campo">
+    <label for="tMotivo">Motivo del traslado</label>
+    <select id="tMotivo"></select>
+  </div>
+
+  <button id="tAgregar" class="principal">Agregar y seguir</button>
+  <p id="tAviso" class="aviso rojo" hidden></p>
+</section>
+
+<section class="tarjeta">
+  <div class="cabecera">
+    <h2>Transporte capturado <span id="tCuantos" class="cuenta">0</span></h2>
+    <div class="acciones">
+      <button id="tDescargar" class="secundario">Descargar</button>
+    </div>
+  </div>
+  <!-- 🔴 Esto hay que decirlo: cada fila es UNA PERSONA. Si en el mismo viaje fueron dos,
+       se agregan dos y el programa las junta en un solo viaje. Sin explicarlo, quien
+       digita capturaria un solo renglon y se perderia el acompañante. -->
+  <p class="ayuda">
+    Cada fila es <b>una persona</b>. Si en el mismo viaje fueron dos, agrégalas las dos con
+    los mismos datos del viaje: el programa las junta.
+  </p>
+  <ul id="tLista" class="lista"></ul>
+</section>
+
+</section><!-- fin pantallaTransporte -->
+
+</main>
+
+<dialog id="dialogoMas">
+  <h3>Más opciones</h3>
+  <button type="button" class="secundario ancho" id="cargarBase">Cargar la base de pacientes…</button>
+  <p class="ayuda">Es el archivo que te pasa Isaac. Se queda en este aparato.</p>
+  <hr>
+  <button type="button" class="secundario ancho" id="descargar2">Descargar lo capturado</button>
+  <p class="ayuda" id="ultimaDescarga">Nada descargado todavía.</p>
+  <hr>
+  <button type="button" class="secundario ancho" id="abrirDrive">Conexión con el Drive…</button>
+  <p class="ayuda" id="estadoDrive">Sin configurar.</p>
+  <hr>
+  <button type="button" class="peligro ancho" id="vaciar">Borrar lo ya descargado…</button>
+  <p class="ayuda">Solo borra lo que ya descargaste al menos una vez.</p>
+  <hr>
+  <button type="button" class="ancho" id="cerrarMas">Cerrar</button>
+  <!-- 🔴 DY-3 · La version de la app, al FINAL y en letra de ayuda: sirve el dia que haya
+       dudas de si entro una actualizacion, y el resto del tiempo no tiene que estorbar.
+       Por eso va aqui dentro y no en la cabecera. -->
+  <p class="ayuda" id="guardadoSeguro">Guardado: comprobando…</p>
+  <p class="ayuda" id="versionApp">versión: comprobando…</p>
+</dialog>
+
+<dialog id="dialogoDrive">
+  <h3>Conexión con el Drive</h3>
+  <p class="ayuda">
+    Lo que se capture se anexa solo a la hoja compartida. Estos dos datos los da Isaac:
+    salen de publicar el script en su Drive.
+  </p>
+  <div class="campo">
+    <label for="urlDrive">Dirección del script (termina en /exec)</label>
+    <input id="urlDrive" type="url" autocomplete="off" placeholder="https://script.google.com/…/exec">
+  </div>
+  <div class="campo">
+    <label for="claveDrive">Clave</label>
+    <!-- ⚠️ EH · El `placeholder` vacío NO es un descuido: `:placeholder-shown` solo casa si
+         el campo TIENE placeholder, así que sin él la etiqueta se quedaba arriba y el
+         cuadro parecía vacío por dentro. Con un espacio, flota como los demás. Lo destapó
+         mirar el diálogo renderizado, no leer el CSS (L-31). -->
+    <input id="claveDrive" type="text" autocomplete="off" placeholder=" ">
+  </div>
+  <p id="resultadoDrive" class="ayuda"></p>
+  <button type="button" class="principal ancho" id="probarDrive">Probar y guardar</button>
+  <hr>
+  <button type="button" class="ancho" id="quitarDrive">Quitar la conexión</button>
+  <p class="ayuda">
+    Sin conexión se sigue capturando igual, y el archivo se pasa a mano con «Descargar».
+  </p>
+  <hr>
+  <button type="button" class="ancho" id="cerrarDrive">Cerrar</button>
+</dialog>
+
+<input type="file" id="archivoBase" accept=".json,application/json" hidden>
+<div id="brindis" class="brindis" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
