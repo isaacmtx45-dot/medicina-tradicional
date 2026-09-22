@@ -953,9 +953,188 @@ function vestirFecha(id) {
   });
   el.addEventListener("input", pintar);
   el.addEventListener("change", pintar);
-  /* En el computador el clic caería en las casillas día/mes/año, que ya no se ven. */
-  el.addEventListener("click", () => { try { el.showPicker && el.showPicker(); } catch (e) {} });
+  /* 🔴 GA2-5 (2026-09-22) · EL CALENDARIO ES NUESTRO. El del sistema salía blanco y azul en
+     medio de la app (su captura) y ese cuadro NO se puede pintar con CSS. El campo pasa a ser
+     de texto y de solo lectura —así el teléfono no saca el teclado— y el toque abre
+     `abrirCalendario`. El `value` sigue en ISO: nada de lo que lo lee se entera del cambio. */
+  el.type = "text";
+  el.readOnly = true;
+  el.setAttribute("inputmode", "none");
+  el.setAttribute("aria-haspopup", "dialog");
+  const icono = document.createElement("span");
+  icono.className = "fecha-icono";
+  icono.setAttribute("aria-hidden", "true");
+  el.parentElement.appendChild(icono);
+  const titulo = (el.labels && el.labels[0] && el.labels[0].textContent) || "Fecha";
+  el.addEventListener("click", () => abrirCalendario(el, titulo));
+  el.addEventListener("keydown", e => {
+    if (e.key === " " || e.key === "Enter" || e.key === "ArrowDown") { e.preventDefault(); abrirCalendario(el, titulo); }
+  });
   pintar();
+}
+
+/* GA2-5 · El calendario, con el diseño de la app. Va en la misma hoja que los desplegables
+   (`.hoja-fondo`), así que el aviso de «hay algo a medias» (`hayAlgoAMedias`) lo ve igual.
+   Tres vistas: días → meses → años (tocando el título). La de años existe por la fecha de
+   NACIMIENTO: bajar 60 años de mes en mes serían 720 toques. */
+const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+               "septiembre", "octubre", "noviembre", "diciembre"];
+const DIAS_SEMANA = ["do", "lu", "ma", "mi", "ju", "vi", "sá"];
+
+function abrirCalendario(el, titulo) {
+  if (el.disabled || document.querySelector(".hoja-fondo")) return;
+  const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-"
+    + String(d.getDate()).padStart(2, "0");
+  const deISO = v => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || "");
+    return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
+  };
+  const puesta = deISO(el.value);
+  const hoyD = new Date(); hoyD.setHours(0, 0, 0, 0);
+  /* Sin fecha puesta, el nacimiento arranca en la vista de AÑOS: es lo primero que hay que buscar. */
+  let foco = puesta || hoyD;
+  let vista = (!puesta && el.id === "nNacimiento") ? "anios" : "dias";
+
+  const fondo = document.createElement("div");
+  fondo.className = "hoja-fondo calendario-fondo";
+  const hoja = document.createElement("div");
+  hoja.className = "hoja calendario";
+  hoja.setAttribute("role", "dialog");
+  hoja.setAttribute("aria-label", titulo);
+  fondo.appendChild(hoja);
+  hoja.innerHTML =
+    '<div class="hoja-cabecera"><h3></h3>' +
+    '<button type="button" class="hoja-cerrar" aria-label="Cerrar">✕</button></div>' +
+    '<div class="cal-nav"><button type="button" class="cal-flecha" data-paso="-1" aria-label="Anterior">‹</button>' +
+    '<button type="button" class="cal-titulo"></button>' +
+    '<button type="button" class="cal-flecha" data-paso="1" aria-label="Siguiente">›</button></div>' +
+    '<div class="cal-rejilla"></div>' +
+    '<div class="cal-pie"><button type="button" class="cal-borrar">Borrar</button>' +
+    '<button type="button" class="cal-hoy">Hoy</button></div>';
+  hoja.querySelector("h3").textContent = titulo;
+  const rejilla = hoja.querySelector(".cal-rejilla");
+  const botonTitulo = hoja.querySelector(".cal-titulo");
+
+  const boton = (texto, clase, alPulsar) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = clase;
+    b.textContent = texto;
+    b.addEventListener("click", alPulsar);
+    rejilla.appendChild(b);
+    return b;
+  };
+
+  const pintar = () => {
+    rejilla.innerHTML = "";
+    rejilla.className = "cal-rejilla " + vista;
+    const anio = foco.getFullYear(), mes = foco.getMonth();
+    if (vista === "dias") {
+      botonTitulo.textContent = MESES[mes][0].toUpperCase() + MESES[mes].slice(1) + " de " + anio;
+      DIAS_SEMANA.forEach(d => {
+        const s = document.createElement("span");
+        s.className = "cal-semana";
+        s.textContent = d;
+        rejilla.appendChild(s);
+      });
+      const primero = new Date(anio, mes, 1);
+      const inicio = new Date(anio, mes, 1 - primero.getDay());
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + i);
+        let clase = "cal-dia";
+        if (d.getMonth() !== mes) clase += " fuera";
+        if (d.getTime() === hoyD.getTime()) clase += " hoy";
+        if (puesta && d.getTime() === puesta.getTime()) clase += " puesta";
+        if (d.getTime() === foco.getTime()) clase += " enfocado";
+        const b = boton(String(d.getDate()), clase, () => escoger(d));
+        b.dataset.fecha = iso(d);
+        b.tabIndex = d.getTime() === foco.getTime() ? 0 : -1;
+      }
+    } else if (vista === "meses") {
+      botonTitulo.textContent = String(anio);
+      MESES.forEach((m, i) => {
+        let clase = "cal-mes";
+        if (puesta && puesta.getFullYear() === anio && puesta.getMonth() === i) clase += " puesta";
+        boton(m.slice(0, 3), clase, () => {
+          foco = new Date(anio, i, Math.min(foco.getDate(), 28));
+          vista = "dias"; pintar();
+        });
+      });
+    } else {
+      const desde = anio - (anio % 12);
+      botonTitulo.textContent = desde + " – " + (desde + 11);
+      for (let a = desde; a < desde + 12; a++) {
+        let clase = "cal-mes";
+        if (puesta && puesta.getFullYear() === a) clase += " puesta";
+        if (a === hoyD.getFullYear()) clase += " hoy";
+        boton(String(a), clase, () => {
+          foco = new Date(a, foco.getMonth(), Math.min(foco.getDate(), 28));
+          vista = "meses"; pintar();
+        });
+      }
+    }
+    botonTitulo.disabled = vista === "anios";
+  };
+
+  const mover = paso => {
+    const a = foco.getFullYear(), m = foco.getMonth();
+    if (vista === "dias") foco = new Date(a, m + paso, Math.min(foco.getDate(), 28));
+    else if (vista === "meses") foco = new Date(a + paso, m, 1);
+    else foco = new Date(a + 12 * paso, m, 1);
+    pintar();
+  };
+
+  const quitar = () => {
+    document.removeEventListener("keydown", teclado, true);
+    fondo.remove();
+    el.focus();
+  };
+  const poner = valor => {
+    el.value = valor;
+    el.dispatchEvent(new Event("input", {bubbles: true}));
+    el.dispatchEvent(new Event("change", {bubbles: true}));
+    quitar();
+  };
+  const escoger = d => poner(iso(d));
+
+  /* Teclado, para el portátil: flechas mueven el día, RePág/AvPág el mes, Enter escoge. */
+  const teclado = e => {
+    if (e.key === "Escape") { e.preventDefault(); quitar(); return; }
+    if (vista !== "dias") return;
+    const pasos = {ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7};
+    if (e.key in pasos) {
+      e.preventDefault();
+      foco = new Date(foco.getFullYear(), foco.getMonth(), foco.getDate() + pasos[e.key]);
+    } else if (e.key === "PageUp" || e.key === "PageDown") {
+      e.preventDefault();
+      mover(e.key === "PageUp" ? -1 : 1);
+    } else if (e.key === "Enter" && document.activeElement &&
+               document.activeElement.classList.contains("cal-dia")) {
+      return;   // el propio botón lo escoge
+    } else {
+      return;
+    }
+    pintar();
+    const b = rejilla.querySelector(".cal-dia.enfocado");
+    if (b) b.focus();
+  };
+  document.addEventListener("keydown", teclado, true);
+
+  hoja.querySelectorAll(".cal-flecha").forEach(
+    b => b.addEventListener("click", () => mover(Number(b.dataset.paso))));
+  botonTitulo.addEventListener("click", () => {
+    vista = vista === "dias" ? "meses" : "anios"; pintar();
+  });
+  hoja.querySelector(".hoja-cerrar").addEventListener("click", quitar);
+  hoja.querySelector(".cal-hoy").addEventListener("click", () => escoger(hoyD));
+  hoja.querySelector(".cal-borrar").addEventListener("click", () => poner(""));
+  fondo.addEventListener("click", e => { if (e.target === fondo) quitar(); });
+
+  pintar();
+  document.body.appendChild(fondo);
+  const inicial = rejilla.querySelector(".cal-dia.enfocado") || rejilla.querySelector("button");
+  /* En el teléfono no hay teclado que abrir aquí (son botones), así que enfocar no estorba. */
+  if (inicial) inicial.focus();
 }
 
 function llenarSedes() {
