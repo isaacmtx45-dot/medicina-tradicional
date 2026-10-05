@@ -58,7 +58,9 @@
   <button type="button" data-nav="transporte"><svg viewBox="0 0 24 24"><path d="M3 7h10v8H3z"/><path d="M13 10h4l4 3v2h-8z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><span>Transporte</span></button>
   <button type="button" data-accion="irSincronizar"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14-4.5L4 9"/><path d="M4 13a8 8 0 0 0 14 4.5L20 15"/><path d="M4 5v4h4M20 19v-4h-4"/></svg><span>Sincronizar</span></button>
   <button type="button" data-accion="irBase" class="solo-ancho"><svg viewBox="0 0 24 24"><path d="M7 16a4 4 0 1 1 1-7.9A5.5 5.5 0 0 1 18.5 9a3.5 3.5 0 0 1 .5 7"/><path d="M12 11v7M9 15.5l3 3 3-3"/></svg><span>Base de datos</span></button>
-  <button type="button" data-accion="masDesdeMenu" class="nav-abajo"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Más</span></button>
+  <!-- GM (2026-10-05) · ÉSTE es el único «Más»: el enlace «Más opciones…» del saludo era el
+       mismo cuadro repetido y se quitó (él: «ese está demás»). Ahora el id es suyo. -->
+  <button type="button" id="masDesdeMenu" class="nav-abajo"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Más</span></button>
 </nav>
 
 <!-- El `<select>` de la sede sigue siendo el control de verdad —es el que guarda el
@@ -108,7 +110,6 @@
       <p>Captura local, consulta por documento y sincronización organizada por módulos y
          sedes.</p>
     </div>
-    <button type="button" class="enlace" id="masDesdeMenu">Más opciones…</button>
   </div>
 
   <!-- 🔴 GA-2 · Las cuatro cifras del Inicio (maqueta aprobada). Salen de lo que la app YA

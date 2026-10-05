@@ -17,7 +17,7 @@
    archivos (DX, 2026-09-11): cualquier cambio de la app cambia el nombre de la caché
    y el teléfono cambia de versión entera. Aquí se deja «dev» a propósito: servida
    por wifi no hay service worker, y lo que se sube siempre va sellado. */
-const VERSION = "mt-tablet-7fb1c47fc8";
+const VERSION = "mt-tablet-32dcaefafd";
 const ARCHIVOS = [
   "./",
   "./index.html",
