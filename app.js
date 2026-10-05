@@ -114,6 +114,26 @@ function fechaParaElPrograma(iso) {
 }
 
 function soloDigitos(t) { return String(t || "").replace(/\D+/g, ""); }
+/* 🔴 AM (2026-10-03) · El DOCUMENTO no es solo dígitos: los AS y MS llevan letras
+   (código del municipio + letras). Con `soloDigitos` perdía las letras y quedaba otro documento, y la base
+   decía «no aparece». Las letras se quedan, en mayúscula. (El valor del viaje sí es solo
+   dígitos: ese sigue con `soloDigitos`.) */
+/* El botón de debajo de cada documento cambia entre el teclado numérico y el de letras.
+   Delegado en el documento: así sirve para los dos módulos sin engancharlo uno por uno. */
+document.addEventListener("click", function (ev) {
+  const boton = ev.target.closest ? ev.target.closest("[data-letras]") : null;
+  if (!boton) return;
+  const campo = document.getElementById(boton.dataset.letras);
+  if (!campo) return;
+  const aLetras = campo.getAttribute("inputmode") !== "text";
+  campo.setAttribute("inputmode", aLetras ? "text" : "numeric");
+  boton.textContent = aLetras ? "Volver al teclado de números"
+                              : "¿Lleva letras (AS / MS)? Teclado con letras";
+  /* El teclado solo cambia al volver a enfocar: se quita el foco y se pone otra vez. */
+  campo.blur();
+  setTimeout(function () { campo.focus(); }, 50);
+});
+function limpiarDocumento(t) { return String(t || "").toUpperCase().replace(/[^0-9A-Z]+/g, ""); }
 
 /* ------------------------------------------------------------- arranque */
 
@@ -294,7 +314,7 @@ async function agregarViaje() {
   $("tAviso").hidden = true;
   if (!sede) return fallarViaje("Escoge la sede arriba antes de capturar.", "sede");
 
-  const doc = soloDigitos($("tDocumento").value);
+  const doc = limpiarDocumento($("tDocumento").value);
   if (!doc) return fallarViaje("Falta el número de documento.", "tDocumento");
   if (!$("tFecha").value) return fallarViaje("Falta la fecha del viaje.", "tFecha");
   if (!$("tMedio").value) return fallarViaje("Falta el medio de transporte.", "tMedio");
@@ -1280,7 +1300,7 @@ function personaDe(documento) {
 function pintarQuienEs(idDoc, idCaja, idTipo) {
   idDoc = idDoc || "documento"; idCaja = idCaja || "quienEs"; idTipo = idTipo || "tipo";
   const caja = $(idCaja);
-  const doc = soloDigitos($(idDoc).value);
+  const doc = limpiarDocumento($(idDoc).value);
   caja.className = "quien";
   /* FJ · El bloque del paciente nuevo es solo de la captura de medicina. */
   const bloqueNuevo = idCaja === "quienEs" ? $("pacienteNuevo") : null;
@@ -1340,7 +1360,7 @@ async function agregar() {
 
   if (!sede) { revisarSede(); return; }
 
-  const doc = soloDigitos($("documento").value);
+  const doc = limpiarDocumento($("documento").value);
   const fechaISO = $("fecha").value;
   const cups = $("cups").value;
   const sub = $("subcodigo").value;

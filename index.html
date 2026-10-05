@@ -203,7 +203,10 @@
          hosting, así que un número de la base sería un dato de un paciente puesto en un
          sitio público. Lo cazó el guardarraíl de `empaquetar_app_tablet.py`, no leerlo. -->
     <input id="documento" inputmode="numeric" autocomplete="off" enterkeyhint="next"
-           placeholder="número de documento">
+           autocapitalize="characters" placeholder="número de documento">
+    <!-- AM (2026-10-03): los AS y MS llevan letras (municipio + letras) y el teclado numérico no
+         las tiene. El numérico sigue de primero porque es lo de casi todos. -->
+    <button type="button" class="enlace" data-letras="documento">¿Lleva letras (AS / MS)? Teclado con letras</button>
   </div>
 
   <!-- Al escribir el documento sale de quien es. Sin esto no hay forma de saber si el
@@ -313,7 +316,10 @@
   <div class="campo">
     <label for="tDocumento">Número de documento</label>
     <input id="tDocumento" inputmode="numeric" autocomplete="off" enterkeyhint="next"
-           placeholder="número de documento">
+           autocapitalize="characters" placeholder="número de documento">
+    <!-- AM (2026-10-03): los AS y MS llevan letras (municipio + letras) y el teclado numérico no
+         las tiene. El numérico sigue de primero porque es lo de casi todos. -->
+    <button type="button" class="enlace" data-letras="tDocumento">¿Lleva letras (AS / MS)? Teclado con letras</button>
   </div>
   <div id="tQuienEs" class="quien vacio">Escribe el documento para ver de quién es.</div>
 
