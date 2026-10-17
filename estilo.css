@@ -416,19 +416,24 @@ dialog hr { border: 0; border-top: 1px solid var(--borde); margin: 14px 0; }
 .desplegable-texto b { color: var(--acento); font-weight: 700; margin-right: 6px; }
 .desplegable-flecha { color: var(--suave); font-size: 14px; }
 
-/* La hoja. Sube desde abajo porque es donde llega el pulgar. */
+/* 🔴 AR-6/7 (2026-10-16) · La hoja sale CENTRADA en la pantalla y con el marco entero,
+   como las ventanas de aviso y el calendario. Su pedido, tras la reunión con Anyi: «todos
+   los menús centrados en la pantalla, no debajo del campo», y con el mismo diseño.
+   ⚠️ SUPERA lo de antes («sube desde abajo porque es donde llega el pulgar»): eso se
+   pensó para la tablet, y Anyi la va a usar en su PC (él, 05/10). */
 .hoja-fondo {
   position: fixed; inset: 0; z-index: 60;
   background: rgba(0, 0, 0, .72);
-  display: flex; align-items: flex-end; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
 }
 .hoja {
   width: 100%; max-width: 680px; max-height: 82vh;
   display: flex; flex-direction: column;
   background: var(--panel);
-  border: 1px solid var(--borde); border-bottom: 0;
-  border-radius: 16px 16px 0 0;
-  padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 8px 10px 10px;
 }
 .hoja-cabecera { display: flex; align-items: center; gap: 10px; padding: 6px 4px 10px; }
 .hoja-cabecera h3 { flex: 1; margin: 0; font-size: 17px; }
@@ -814,7 +819,8 @@ button { border-radius: var(--radio-chico); }
 dialog, .ventana, .hoja {
   background: var(--panel); border-color: var(--borde-fuerte); box-shadow: var(--sombra);
 }
-dialog { border-radius: var(--radio); }
+/* AR-6 · El mismo marco en los tres: borde fuerte y la misma curva. */
+dialog, .ventana, .hoja { border-radius: var(--radio); }
 dialog h3, .ventana h3, .hoja-cabecera h3 { font-family: var(--letra-titulo); font-weight: 600; }
 dialog::backdrop, .ventana-fondo, .hoja-fondo { background: rgba(4, 8, 18, .72); }
 .hoja-opcion.puesta { background: rgba(139, 92, 246, .16); }

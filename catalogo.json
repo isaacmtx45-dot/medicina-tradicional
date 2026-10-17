@@ -1,5 +1,5 @@
 {
- "generado": "2026-09-16",
+ "generado": "2026-10-16",
  "cups": {
   "S50003": {
    "descripcion": "ACCIONES INDIVIDUALES DE MEDICINA TRADICIONAL",
@@ -381,29 +381,6 @@
      }
     }
    }
-  },
-  "S50008": {
-   "descripcion": "TRANSPORTE INTERMUNICIPAL TERRESTRE",
-   "subcodigos": {
-    "S50008-1": {
-     "descripcion": "Transporte de paciente y/o acompañante con origen y/o destino en zona rural",
-     "motivos": {
-      "1": "Traslado gestante",
-      "2": "Traslado proceso de parto",
-      "3": "Traslado madre y recién nacido",
-      "4": "Traslado menor desnutrido / riesgo DNT",
-      "5": "Traslado ETV/ tuberculosis",
-      "8": "Traslado de urgencia desde comunidad",
-      "9": "Traslado a cita especializada",
-      "10": "Traslado en jornada de salud",
-      "11": "Traslado paciente alto costo",
-      "12": "Traslado de fallecido rural",
-      "13": "Traslado retorno de paciente a comunidad",
-      "14": "Traslado a cita y/o procedimientos médicos",
-      "16": "Traslado de paciente ordenado por el sabedor"
-     }
-    }
-   }
   }
  },
  "sedes": {
@@ -445,6 +422,26 @@
   },
   "medio_con_placa": "1",
   "placa_no_aplica": "NA",
-  "cups": "S50008"
+  "cups": "S50008",
+  "subcodigos": {
+   "S50008-1": {
+    "descripcion": "Transporte de paciente y/o acompañante con origen y/o destino en zona rural",
+    "motivos": {
+     "1": "Traslado gestante",
+     "2": "Traslado proceso de parto",
+     "3": "Traslado madre y recién nacido",
+     "4": "Traslado menor desnutrido / riesgo DNT",
+     "5": "Traslado ETV/ tuberculosis",
+     "8": "Traslado de urgencia desde comunidad",
+     "9": "Traslado a cita especializada",
+     "10": "Traslado en jornada de salud",
+     "11": "Traslado paciente alto costo",
+     "12": "Traslado de fallecido rural",
+     "13": "Traslado retorno de paciente a comunidad",
+     "14": "Traslado a cita y/o procedimientos médicos",
+     "16": "Traslado de paciente ordenado por el sabedor"
+    }
+   }
+  }
  }
 }

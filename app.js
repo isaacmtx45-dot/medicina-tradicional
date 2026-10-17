@@ -32,6 +32,7 @@ let anulaciones = [];     // EC · lo que hay que tachar en el Drive
 let sede = "";
 let drive = null;          // { url, clave }
 let mandando = false;
+const REINTENTO_MS = 2 * 60 * 1000;   // AR-3b · cada cuánto se reintenta lo pendiente
 
 /* ---------------------------------------------------------------- almacen */
 
@@ -280,7 +281,10 @@ function llenarTransporte() {
 
   /* Los motivos del traslado son los del subcodigo de transporte, del MISMO catalogo que
      usa el otro modulo: no hay una segunda lista que se pueda quedar vieja. */
-  const cups = (catalogo && catalogo.cups && catalogo.cups[t.cups]) || {subcodigos: {}};
+  /* AR-1 · Desde el 16/10 el S50008 ya no está en `cups` (no se ofrece en Medicina): sus
+     subcódigos vienen en `transporte`. Lo de `cups` queda por si el catálogo es de antes. */
+  const cups = (t.subcodigos && {subcodigos: t.subcodigos})
+            || (catalogo && catalogo.cups && catalogo.cups[t.cups]) || {subcodigos: {}};
   const sub = Object.keys(cups.subcodigos)[0];
   const motivos = (sub && cups.subcodigos[sub].motivos) || {};
   poner($("tMotivo"), Object.keys(motivos).sort(ordenNumerico), motivos);
@@ -366,6 +370,11 @@ async function agregarViaje() {
   pintarQuienEs("tDocumento", "tQuienEs", "tTipo");
   $("tDocumento").focus();
   brindis("Transporte guardado.");
+  /* 🔴 AR-3a (2026-10-16) · Igual que una atención: se intenta en el acto y en silencio.
+     Antes `agregarViaje` no lo hacía —no fue una decisión, se escribió aparte de
+     `agregar` y se quedó sin esta línea— y por eso el buzón tenía 5 atenciones y 0
+     viajes: el transporte solo salía al reabrir la app o al tocar Sincronizar. */
+  mandarPendientes(true);
   return true;
 }
 
@@ -388,7 +397,11 @@ function pintarViajes() {
       " · " + ((t.medios || {})[v.medio] || ("medio " + v.medio)) +
       (v.placa && v.placa !== (t.placa_no_aplica || "NA") ? " " + v.placa : "") +
       " · " + ((t.tipos_beneficiado || {})[v.beneficiado] || "") +
-      " · motivo " + v.motivo;
+      " · motivo " + v.motivo +
+      /* AR-2a · Lo mismo que dice la lista de Medicina (FJ-3): sin esto no había forma
+         de saber, mirando el aparato, si un viaje había llegado al Drive. */
+      (v.enviado ? "  ·  ✓ en el Drive"
+                 : (drive && drive.url ? "  ·  sin mandar" : ""));
     datos.appendChild(titulo);
     datos.appendChild(detalle);
     const quitar = document.createElement("button");
@@ -1229,7 +1242,9 @@ function llenarCups() {
   const sel = $("cups");
   sel.innerHTML = "";
   sel.appendChild(new Option("— escoge —", ""));
-  Object.keys(catalogo.cups).sort(ordenNumerico).forEach(c => {
+  /* AR-1 · El transporte no se ofrece aquí ni con un catálogo de antes en la caché. */
+  Object.keys(catalogo.cups).filter(c => c !== cfgTransporte().cups)
+        .sort(ordenNumerico).forEach(c => {
     sel.appendChild(new Option(c + " · " + catalogo.cups[c].descripcion, c));
   });
 }
@@ -2083,8 +2098,8 @@ function conectar() {
 
   $("descargar").addEventListener("click", descargar);
   $("descargar2").addEventListener("click", descargar);
-  $("mas").addEventListener("click", () => {
-    pintarUltimaDescarga(); pintarVersion(); pintarGuardado(); $("dialogoMas").showModal(); });
+  /* AR-5 (2026-10-16) · El «Más…» de la tarjeta «Capturado» se quitó: abría el mismo
+     cuadro que el «Más» de la barra, que es el único (GM). */
   $("cerrarMas").addEventListener("click", () => $("dialogoMas").close());
   $("vaciar").addEventListener("click", vaciarDescargados);
 
@@ -2098,12 +2113,21 @@ function conectar() {
   $("cerrarDrive").addEventListener("click", () => $("dialogoDrive").close());
   $("probarDrive").addEventListener("click", probarDrive);
   $("quitarDrive").addEventListener("click", quitarDrive);
-  $("mas").addEventListener("click", pintarConfigDrive);
 
   /* 🔴 Cuando vuelve la señal se manda solo. Es el caso para el que existe todo esto:
      ella captura en el terreno sin cobertura y al llegar a la IPS se sube sin que nadie
      se acuerde de nada. */
   window.addEventListener("online", () => mandarPendientes(true));
+
+  /* 🔴 AR-3b (2026-10-16) · Y mientras quede algo sin mandar, se reintenta cada ~2 min
+     con la app abierta. El evento `online` no basta: con el wifi puesto pero SIN internet
+     el navegador se cree conectado, el envío falla y no volvía a intentarse hasta
+     reabrir la app o tocar Sincronizar. En silencio: lo dice la banda de arriba. */
+  setInterval(() => {
+    if (porMandar().length + porMandarViajes().length + anulaciones.length) {
+      mandarPendientes(true);
+    }
+  }, REINTENTO_MS);
 
   $("cargarBase").addEventListener("click", () => $("archivoBase").click());
   $("irCargarBase").addEventListener("click", () => $("archivoBase").click());
