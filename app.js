@@ -136,6 +136,14 @@ document.addEventListener("click", function (ev) {
 });
 function limpiarDocumento(t) { return String(t || "").toUpperCase().replace(/[^0-9A-Z]+/g, ""); }
 
+/* SC · El separador del archivo plano (`cfg.SEPARADOR` en el programa). El documento no
+   lo necesita: `limpiarDocumento` ya deja solo letras y números. */
+const SEPARADOR_DEL_TXT = "|";
+function avisoSeparador(nombre) {
+  return "En " + nombre + " hay una «|»: en el archivo que se sube separa los datos y " +
+         "dañaría la línea. Bórrala para poder agregar.";
+}
+
 /* ------------------------------------------------------------- arranque */
 
 async function arrancar() {
@@ -331,6 +339,13 @@ async function agregarViaje() {
   const destino = ($("tDestino").value || "").trim();
   if (!origen) return fallarViaje("Falta el lugar de origen.", "tOrigen");
   if (!destino) return fallarViaje("Falta el lugar de destino.", "tDestino");
+  /* 🔴 SC · La «|» separa los campos del TXT: dentro de un dato corre la línea entera.
+     Salió de la prueba del 19/10 (placa «FGHRT3|1»). Se avisa y NO se quita sola, por
+     decisión de él: quitarla adivinaría qué quiso escribir. */
+  for (const [id, nombre, texto] of [["tPlaca", "la placa", placa], ["tOrigen", "el origen", origen],
+                                     ["tDestino", "el destino", destino]]) {
+    if (texto.includes(SEPARADOR_DEL_TXT)) return fallarViaje(avisoSeparador(nombre), id);
+  }
 
   /* El valor va SIN puntos ni comas, que es lo que pide el plano — y con puntos es como
      se escribe por costumbre. Se limpia aqui en vez de regañarla por ello. */
@@ -1420,6 +1435,7 @@ async function agregar() {
     if (nombre.split(" ").length < 2)
       return fallar("Es un paciente nuevo: escribe su nombre completo (nombres y apellidos).",
                     "nNombre");
+    if (nombre.includes(SEPARADOR_DEL_TXT)) return fallar(avisoSeparador("el nombre"), "nNombre");
     if (!nacimientoISO) return fallar("Falta la fecha de nacimiento del paciente nuevo.",
                                       "nNacimiento");
     if (nacimientoISO > fechaISO)
