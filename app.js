@@ -1359,10 +1359,17 @@ function pintarQuienEs(idDoc, idCaja, idTipo) {
   caja.classList.add("hallado");
   const enOtraSede = sede && p.d && p.d !== sede
     ? " · <b>en la base figura en " + p.d + "</b>" : "";
+  /* 🔴 RG-T (2026-11-18) · Si la base lo da CONTRIBUTIVO, se dice en grande al escogerlo: en
+     octubre de Dibulla entraron dos contributivos a la hoja del subsidiado y nada lo avisó.
+     Es AVISO: se puede capturar igual (Isaac lo aprobó así); ella decide en qué hoja va. */
+  const contributivo = p.r === "C"
+    ? "<span class=\"regimen-otro\">CONTRIBUTIVO — en la base de Dusakawi es del régimen " +
+      "contributivo: va en la hoja del contributivo, no en la del subsidiado.</span>"
+    : "";
   caja.innerHTML = "<strong>" + p.n + "</strong>" +
     "<span class=\"detalle\">" + (p.t || "?") + " · nació " + (p.f || "?") +
     " · " + (p.s || "?") + enOtraSede +
-    (p.nuevo ? " · <b>paciente nuevo (lo escribiste tú)</b>" : "") + "</span>";
+    (p.nuevo ? " · <b>paciente nuevo (lo escribiste tú)</b>" : "") + "</span>" + contributivo;
 
   /* El tipo de la base se PROPONE, no se impone: manda el que ella escriba, porque la
      base dice el de HOY y la atencion puede ser de hace meses (DH). */

@@ -893,3 +893,8 @@ dialog::backdrop, .ventana-fondo, .hoja-fondo { background: rgba(4, 8, 18, .72);
   .calendario-fondo { align-items: center; }
   .calendario { border-bottom: 1px solid var(--borde-fuerte); border-radius: var(--radio); }
 }
+
+/* 🔴 RG-T (2026-11-18) · El paciente CONTRIBUTIVO: en grande y en naranja, que no se pase. */
+.regimen-otro { display: block; margin-top: 8px; padding: 8px 10px; border-radius: 8px;
+                background: #3b2f16; color: #ffe9b8; border: 1px solid #7a5c1e;
+                font-weight: 700; font-size: 16px; }
